@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2025-06-23 13:03:37.913123",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-06-23 13:03:37.913123",
+ "modified_by": "Administrator",
+ "module": "Ampower Jive",
+ "name": "mcp-dashboard",
+ "owner": "Administrator",
+ "page_name": "mcp-dashboard",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "MCP Dashboard"
+}

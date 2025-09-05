@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@n8n/chat": "^0.50.0"
+  },
+  "type" : "module"
+}

@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include ampower_jive *.css
+recursive-include ampower_jive *.csv
+recursive-include ampower_jive *.html
+recursive-include ampower_jive *.ico
+recursive-include ampower_jive *.js
+recursive-include ampower_jive *.json
+recursive-include ampower_jive *.md
+recursive-include ampower_jive *.png
+recursive-include ampower_jive *.py
+recursive-include ampower_jive *.svg
+recursive-include ampower_jive *.txt
+recursive-exclude ampower_jive *.pyc

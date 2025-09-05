@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-10 00:07:49.416225",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "api_key",
+  "model",
+  "n8n_webhook_url",
+  "included_doctypes"
+ ],
+ "fields": [
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "API Key",
+   "reqd": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "reqd": 1
+  },
+  {
+   "fieldname": "n8n_webhook_url",
+   "fieldtype": "Data",
+   "label": "N8N Webhook URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "included_doctypes",
+   "fieldtype": "Table",
+   "label": "Included Doctypes",
+   "options": "Jive Config Doctype"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-09-02 15:36:23.260783",
+ "modified_by": "Administrator",
+ "module": "Ampower Jive",
+ "name": "Jive Config",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
