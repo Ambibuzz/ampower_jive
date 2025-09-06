@@ -203,7 +203,7 @@ The **Jive Config** singleton doctype is where you define the core settings that
 For each tool in MCP, Jive requires a prompt that defines its purpose and use case for the associated doctype or tool.
 Go to the Prompt List and create a new prompt.
 
-For reference, we have included examples that demonstrate the recommended prompt structure.
+For reference, we have included examples that demonstrate the recommended prompt structure. Based on your use case you can define your own prompt.
 ⚠️ The prompt names provided are already defined in the Jive application — please use these exact prompt document names without modification.
 
 **USER_DATABASE_DEFINITION**
@@ -211,9 +211,9 @@ For reference, we have included examples that demonstrate the recommended prompt
 ```
 **Important Information**
 
-The available data is organized based on ABC Inventory Analysis, which categorizes items according to their sales performance and inventory value.
+The available data is organized based on some category like [A, B, C] Inventory Analysis, which categorizes items according to their sales performance and inventory value.
 
-Item A/B/C/D Forecasts: These represent forecasted sales for inventory items, classified by performance.
+Item A/B/C/D Forecasts: These represent forecasted sales for inventory items in the respective DocTypes.
 ```
 
 **HELPDESK**
