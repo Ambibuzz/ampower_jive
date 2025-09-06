@@ -272,7 +272,7 @@ sudo supervisorctl restart all
 ## **Contact**
 
 **Amibuzz Technologies LLP**
-📧 [buzz@ambibuzz.com](mailto:buzz@ambibuzz.com)
+📧 [buzz.us@ambibuzz.com](mailto:buzz.us@ambibuzz.com)
 
 ---
 
