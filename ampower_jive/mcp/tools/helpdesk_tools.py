@@ -1,7 +1,18 @@
+<<<<<<< Updated upstream
 from ampower_jive.mcp.utils.core_utils import ensure_frappe_init
 from ampower_jive.mcp.config.clients import openai_client
 import frappe
 import json
+=======
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
+import json
+import frappe
+from ampower_jive.mcp.config.setup import logger
+from ..config.open_ai_client import OpenAIConfig
+from ampower_jive.mcp.utils.core_utils import ensure_frappe_init
+>>>>>>> Stashed changes
 
 
 def run_helpdesk(user_prompt):
