@@ -4,7 +4,7 @@
 import json
 import frappe
 from frappe import _
-
+from ..utils.core_utils import _convert_dates_to_strings, _open_fresh_session, _teardown_session
 
 def run_multi_document_query_count_only(filters):
     """
@@ -22,6 +22,8 @@ def run_multi_document_query_count_only(filters):
 
     if not parent_doctype:
         frappe.throw(_("Parent doctype not specified"))
+
+    _open_fresh_session()
 
     # Step 1: Query each child table filters to get parents satisfying child filters
     parent_names_sets = []

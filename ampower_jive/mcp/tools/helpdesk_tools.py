@@ -28,7 +28,7 @@ def run_helpdesk(user_prompt: str) -> str:
     # Get prompt from DB, else fallback
     helpdesk_prompt = (
         frappe.db.get_value("Prompt", {"name": "HELPDESK"}, "prompt")
-        or "You are a helpful expert. Give only answers relevant to asked questions."
+        or "You are a helpful expert in frappe ERPNext, HRMS, India compliance and CRM. Give only answers relevant to asked questions."
     )
 
     try:

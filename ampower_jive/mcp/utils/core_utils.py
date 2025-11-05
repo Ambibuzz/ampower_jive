@@ -3,6 +3,7 @@ from datetime import datetime, date
 import requests
 import frappe
 import json
+import os
 
 
 MCP_HOST = frappe.conf.get("mcp_server_host", "localhost")
@@ -71,13 +72,6 @@ def make_local_mcp_request(method, params={}, request_id="frappe-mcp-client"):
         return {"error": "Unable to reach MCP server", "details": str(e)}
 
 
-def datetime_handler(obj):
-    """JSON serializer for datetime objects"""
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    logger.error(f"Object of type {type(obj)} is not JSON serializable")
-
-
 def ensure_frappe_init():
     """Ensure Frappe is initialized"""
     try:
@@ -88,3 +82,39 @@ def ensure_frappe_init():
         logger.info("Frappe initialized successfully")
     except Exception as e:
         logger.error(f"Frappe init error: {e}")
+
+def _convert_dates_to_strings(data):
+    if isinstance(data, list):
+        return [_convert_dates_to_strings(item) for item in data]
+    elif isinstance(data, dict):
+        return {k: _convert_dates_to_strings(v) for k, v in data.items()}
+    elif isinstance(data, (datetime, date)):
+        return data.isoformat()
+    return data
+
+def _open_fresh_session():
+    """
+    Open a fresh DB session that sees latest committed rows.
+    """
+    # If a previous connection exists, close it first
+    try:
+        if getattr(frappe, "db", None):
+            frappe.db.close()
+    except Exception:
+        pass
+
+    # Init/connect for the current site
+    if not getattr(frappe.local, "site", None):
+        site_name = os.environ.get("FRAPPE_SITE")
+        frappe.init(site=site_name)
+
+    frappe.connect()
+
+def _teardown_session():
+    try:
+        if getattr(frappe, "db", None):
+            # Ensure nothing is left pending and release connection back to pool
+            frappe.db.commit()
+            frappe.db.close()
+    except Exception:
+        pass
