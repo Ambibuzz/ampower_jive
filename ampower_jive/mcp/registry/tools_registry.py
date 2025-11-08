@@ -34,7 +34,6 @@ def run_helpdesk_tool(user_prompt: str) -> dict:
             "MCP Response - helpdesk_tool",
             f"Output: {json.dumps(result, indent=2, default=str)}",
         )
-
         return result
 
     except Exception as e:
@@ -102,22 +101,23 @@ class MultiDoctypeQuery(BaseModel):
 
 @mcp.tool(
     name="multi_doctype_query",
-    description="""Query parent doctypes and their child tables. 
+    description="""
+        Query parent doctypes and their child tables. 
 
-REQUIRED PARAMETERS:
-- doctype: Parent doctype name (e.g., "Purchase Order", "Sales Order")
+        REQUIRED PARAMETERS:
+        - doctype: Parent doctype name (e.g., "Purchase Order", "Sales Order")
 
-OPTIONAL PARAMETERS:
-- document_name: Specific document ID (e.g., "PUR-ORD-2025-00009")
-- parent_fields: List of fields to return (default: ["name"])
-- child_tables: List of child table configs [{"child_doctype": "Purchase Order Item", "fields": ["item_code", "item_name", "qty"]}]
-- parent_filters: Dict of filters (e.g., {"status": "Draft"})
-- limit: Max records (default: 100)
-- order_by: Sort order (default: "modified desc")
+        OPTIONAL PARAMETERS:
+        - document_name: Specific document ID (e.g., "PUR-ORD-2025-00009")
+        - parent_fields: List of fields to return (default: ["name"])
+        - child_tables: List of child table configs [{"child_doctype": "Purchase Order Item", "fields": ["item_code", "item_name", "qty"]}]
+        - parent_filters: Dict of filters (e.g., {"status": "Draft"})
+        - limit: Max records (default: 100)
+        - order_by: Sort order (default: "modified desc")
 
-Example for "items on PUR-ORD-2025-00009":
-{"doctype": "Purchase Order", "document_name": "PUR-ORD-2025-00009", "child_tables": [{"child_doctype": "Purchase Order Item", "fields": ["item_code", "item_name", "qty", "rate"]}]}
-""",
+        Example for "items on PUR-ORD-2025-00009":
+        {"doctype": "Purchase Order", "document_name": "PUR-ORD-2025-00009", "child_tables": [{"child_doctype": "Purchase Order Item", "fields": ["item_code", "item_name", "qty", "rate"]}]}
+    """,
 )
 def multi_doctype_query(
     doctype: str,
@@ -152,13 +152,13 @@ def multi_doctype_query(
             f"Input:\n{json.dumps(agent_query, indent=2)}",
         )
 
-        results = multi_doctype_query_tool.run_multi_doctype_query(agent_query)
+        result = multi_doctype_query_tool.run_multi_doctype_query(agent_query)
 
         response = {
             "success": True,
-            "results": results,
-            "count": len(results),
-            "message": f"Found {len(results)} document(s)",
+            "results": result,
+            "count": len(result),
+            "message": f"Found {len(result)} document(s)",
         }
 
         frappe.log_error(
@@ -189,17 +189,18 @@ def multi_doctype_query(
 # For count tool - also use direct parameters
 @mcp.tool(
     name="get_count_of_documents",
-    description="""Get count of documents matching filters. Returns only the number, not actual records.
+    description="""
+        Get count of documents matching filters. Returns only the number, not actual records.
 
-REQUIRED PARAMETERS:
-- doctype: Parent doctype name (e.g., "Sales Order", "Purchase Order")
+        REQUIRED PARAMETERS:
+        - doctype: Parent doctype name (e.g., "Sales Order", "Purchase Order")
 
-OPTIONAL PARAMETERS:
-- parent_filters: Dict of filters (e.g., {"status": "Draft", "customer": "ABC Corp"})
-- child_tables: List of child table filters to restrict count [{"child_doctype": "Sales Order Item", "filters": {"item_code": "ITEM-001"}}]
+        OPTIONAL PARAMETERS:
+        - parent_filters: Dict of filters (e.g., {"status": "Draft", "customer": "ABC Corp"})
+        - child_tables: List of child table filters to restrict count [{"child_doctype": "Sales Order Item", "filters": {"item_code": "ITEM-001"}}]
 
-Example: {"doctype": "Sales Order", "parent_filters": {"status": "To Deliver"}}
-""",
+        Example: {"doctype": "Sales Order", "parent_filters": {"status": "To Deliver"}}
+    """,
 )
 def get_count_of_documents(
     doctype: str,

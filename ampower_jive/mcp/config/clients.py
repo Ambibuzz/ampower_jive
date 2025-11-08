@@ -2,9 +2,8 @@
 # For license information, please see license.txt
 
 
-from mcp.server.fastmcp import FastMCP
-import frappe
 import os
+from fastmcp import FastMCP
 
 MCP_HOST = os.environ.get("MCP_HOST", "your-custom-fallback-host")
 MCP_PORT = os.environ.get("MCP_PORT", "your-custom-fallback-port")

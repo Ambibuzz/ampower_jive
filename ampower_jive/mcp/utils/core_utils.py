@@ -1,9 +1,13 @@
-from ampower_jive.mcp.config.setup import logger
 from datetime import datetime, date
+from frappe.sessions import Session
 import requests
+import logging
 import frappe
 import json
 import os
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 MCP_HOST = frappe.conf.get("mcp_server_host", "localhost")
@@ -108,7 +112,7 @@ def _open_fresh_session():
         site_name = os.environ.get("FRAPPE_SITE")
         frappe.init(site=site_name)
 
-    frappe.connect()
+    return frappe.connect()
 
 def _teardown_session():
     try:
@@ -118,3 +122,54 @@ def _teardown_session():
             frappe.db.close()
     except Exception:
         pass
+
+
+def bind_frappe_session_from_sid(sid: str) -> None:
+    """Bind frappe.local session and user from a valid SID."""
+    try:
+        if not sid or not isinstance(sid, str):
+            raise PermissionError("Invalid or missing SID")
+
+        Sessions = frappe.qb.DocType("Sessions")
+        # Fetch the associated user for an active session
+        row = (
+            frappe.qb.from_(Sessions)
+            .select(Sessions.user)
+            .where((Sessions.sid == sid) & (Sessions.status == "Active"))
+            .limit(1)
+        ).run(as_dict=True)
+
+        if not row or not row[0].get("user"):
+            raise PermissionError("Invalid or inactive session")
+
+        user = row[0]["user"]
+
+        #Manually bind minimal session locals for permission checks
+        sess_data = frappe._dict()
+        sess_data.sid = sid
+        sess_data.user = user
+        frappe.local.session = sess_data
+        frappe.local.session_obj = None
+        frappe.set_user(user)
+        frappe.log_error(message=f"Current Session User: {frappe.session.user}, SID: {frappe.session.sid}, session local data: {frappe.local.session}, session data: {frappe.session.data}",  title="Session Bind Info")
+    except Exception as e:
+        frappe.log_error(f"Session bind error", str(e))
+        raise
+
+
+def cleanup_frappe_local():
+    """
+    Clear per-request locals to avoid cross-request contamination in worker reuse.
+    """
+    try:
+        # Reset user to 'Guest' and drop local session safely
+        frappe.set_user("Guest")
+    except Exception:
+        pass
+    finally:
+        if hasattr(frappe, "local"):
+            # Drop session reference
+            try:
+                frappe.local.session = None
+            except Exception:
+                pass

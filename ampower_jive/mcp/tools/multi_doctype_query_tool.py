@@ -4,7 +4,7 @@ from frappe import _
 from datetime import datetime, date
 from ..utils.core_utils import _convert_dates_to_strings, _open_fresh_session, _teardown_session
 
-@frappe.whitelist()
+
 def run_multi_doctype_query(filters):
     """
     Query parent doctype with optional child tables.
@@ -21,12 +21,13 @@ def run_multi_doctype_query(filters):
     child_tables = filters.get("child_tables", [])
     limit = min(int(filters.get("limit", 100)), 1000)
     order_by = filters.get("order_by", "modified desc")
-    use_permissions = bool(filters.get("apply_permissions", False))  # optional toggle
+    use_permissions = bool(filters.get("apply_permissions", False))
 
     if not parent_doctype:
         frappe.throw(_("Parent doctype not specified"))
 
     _open_fresh_session()
+    frappe.log_error("session User", frappe.session.user)
     try:
         # Always clear per-doctype caches (cheap) to avoid stale meta
         frappe.clear_cache(doctype=parent_doctype)
@@ -53,7 +54,7 @@ def run_multi_doctype_query(filters):
                     fields=parent_fields,
                     limit_page_length=limit,
                     order_by=order_by,
-                )  # Applies permissions [web:29][web:18]
+                )
             else:
                 parent_results = frappe.db.get_all(
                     parent_doctype,
@@ -61,7 +62,7 @@ def run_multi_doctype_query(filters):
                     fields=parent_fields,
                     limit=limit,
                     order_by=order_by,
-                )  # Faster; skips perms [web:31][web:29]
+                )
 
         if not parent_results:
             return []
