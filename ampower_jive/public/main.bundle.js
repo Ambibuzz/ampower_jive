@@ -7,6 +7,14 @@ function initN8nChat() {
       const webhookUrl = r.message.url;
       const sessionId = r.message.sid;
       const instanceEndPoint = r.message.instance_end_point || "";
+      const activeJive = r.message.active;
+
+      if (!activeJive) {
+        return; // Exit if AmPower Jive is not active
+      }
+      if (!instanceEndPoint){
+        return; // Exit if instance end point is not defined
+      }
 
       // Dynamically create and append the module script tag for n8n chat UI
       const script = document.createElement("script");

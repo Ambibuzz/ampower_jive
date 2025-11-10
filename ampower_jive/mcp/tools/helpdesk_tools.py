@@ -23,12 +23,12 @@ def run_helpdesk(user_prompt: str) -> str:
     try:
         ensure_frappe_init()
     except Exception as e:
-        return json.dumps({"error": f"Frappe initialization failed: {e}"})
+        return {"error": f"Frappe initialization failed: {e}"}
 
     # Get prompt from DB, else fallback
     helpdesk_prompt = (
         frappe.db.get_value("Prompt", {"name": "HELPDESK"}, "prompt")
-        or "You are a helpful expert. Give only answers relevant to asked questions."
+        or "You are a helpful expert in frappe ERPNext, HRMS, India compliance and CRM. Give only answers relevant to asked questions."
     )
 
     try:
@@ -44,8 +44,8 @@ def run_helpdesk(user_prompt: str) -> str:
         )
 
         reply = response.choices[0].message.content.strip()
-        return json.dumps({"reply": reply})
+        return {"reply": reply}
 
     except Exception as e:
         logger.exception("Error while running helpdesk tool")
-        return json.dumps({"error": f"Failed to get response: {e}"})
+        return {"error": f"Failed to get response: {e}"}

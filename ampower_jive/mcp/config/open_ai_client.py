@@ -39,30 +39,3 @@ class OpenAIConfig:
 
             self._client = OpenAI(api_key=api_key)
         return self._client
-
-    def send_message(self, messages: list, model_type: str = "open_ai_model", **kwargs):
-        """
-        Send a chat completion request to OpenAI API.
-
-        Args:
-            messages (list): [{"role": "user", "content": "Hello"}]
-            model_type (str): Either "open_ai_model" or "help_desk_model"
-            kwargs: Optional overrides (temperature, response_format, etc.)
-
-        Returns:
-            dict: OpenAI response
-        """
-        config = self._get_config()
-        model = config.get(model_type)
-
-        if not model:
-            frappe.throw(f"Please setup {model_type} in Jive Config.")
-
-        response = self.client.chat.completions.create(
-            model=model,
-            messages=messages,
-            response_format=kwargs.get("response_format", {"type": "json_object"}),
-            temperature=kwargs.get("temperature", 0.36),
-        )
-        final_res = response.choices[0].message.content
-        return final_res
