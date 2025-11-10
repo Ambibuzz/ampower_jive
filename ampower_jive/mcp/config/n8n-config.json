@@ -215,7 +215,7 @@
       "parameters": {
         "public": true,
         "options": {
-          "allowedOrigins": "https://test.example.cloud"
+          "allowedOrigins": "https://example.ampower.cloud"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -437,8 +437,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -2688,
-        -1056
+        -2656,
+        -960
       ],
       "id": "9e3ab1e3-9f53-4bc7-9206-32864f7d9818",
       "name": "Sticky Note1"
@@ -472,7 +472,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://example.com:33001/mcp",
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
         "serverTransport": "httpStreamable",
         "authentication": "bearerAuth",
         "include": "selected",
@@ -498,7 +498,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://example.com:33001/mcp",
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
         "serverTransport": "httpStreamable",
         "authentication": "bearerAuth",
         "include": "selected",
@@ -591,7 +591,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://example.com:33001/mcp",
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
         "serverTransport": "httpStreamable",
         "authentication": "bearerAuth",
         "include": "selected",
@@ -614,6 +614,48 @@
           "name": "Bearer Auth account"
         }
       }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.clarification_message }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, you task is beuatify user input in a polite way"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        -1088
+      ],
+      "id": "38489e58-6e99-4a00-ad4b-8f4bef7c009a",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        -912
+      ],
+      "id": "a4a9da41-3413-4553-aedb-8c822ec2a104",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
     }
   ],
   "connections": {
@@ -630,7 +672,13 @@
     },
     "Check If Clarification Needed": {
       "main": [
-        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Get Doctype Metadata",
@@ -882,10 +930,40 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "When chat message received": [
+      {
+        "metadata": {
+          "clientCurrentDateTime": "Mon Nov 10 2025 15:44:10 GMT+0530 (India Standard Time)",
+          "clientCurrentTimezone": "Asia/Calcutta",
+          "clientQueryParams": {},
+          "clientUserAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+          "n8nchatui": {
+            "sessionId": "2ef16d79395a4e1d0d11b7a9c3605d52d2d249122bdf43ddb2988437"
+          },
+          "instanceEndPoint": "example.ampower.cloud"
+        },
+        "action": "sendMessage",
+        "sessionId": "bbecb62a-0d7f-4e67-9413-6236e561dd20",
+        "chatInput": "list all the items with there images"
+      }
+    ]
+  },
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "e0becec129953bb2c17b52bb0fb1d80a81ee5900724a9e27aad02c289d416967"
   }
 }
