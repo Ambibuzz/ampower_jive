@@ -1,10 +1,12 @@
+import os
+import json
+import frappe
+import logging
+import requests
+from typing import Optional, Dict
 from datetime import datetime, date
 from frappe.sessions import Session
-import requests
-import logging
-import frappe
-import json
-import os
+from fastmcp.server.dependencies import get_context
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,6 +89,7 @@ def ensure_frappe_init():
     except Exception as e:
         logger.error(f"Frappe init error: {e}")
 
+
 def _convert_dates_to_strings(data):
     if isinstance(data, list):
         return [_convert_dates_to_strings(item) for item in data]
@@ -95,6 +98,7 @@ def _convert_dates_to_strings(data):
     elif isinstance(data, (datetime, date)):
         return data.isoformat()
     return data
+
 
 def _open_fresh_session():
     """
@@ -111,8 +115,24 @@ def _open_fresh_session():
     if not getattr(frappe.local, "site", None):
         site_name = os.environ.get("FRAPPE_SITE")
         frappe.init(site=site_name)
+    frappe.connect()
+    update_current_session()
 
-    return frappe.connect()
+def update_current_session():
+     # Get SID and user from FastMCP context and store in variables
+    try:
+        ctx = get_context()
+        frappe_sid = ctx.get_state("frappe_sid")
+        frappe_user = ctx.get_state("frappe_user")
+
+        # Bind the session if SID and user are available
+        if frappe_sid and frappe_user:
+            set_session_user(frappe_sid, frappe_user)
+    except Exception as e:
+        frappe.log_error(
+            message=str(e), title="Failed to get or bind session from FastMCP context"
+        )
+
 
 def _teardown_session():
     try:
@@ -124,37 +144,122 @@ def _teardown_session():
         pass
 
 
-def bind_frappe_session_from_sid(sid: str) -> None:
-    """Bind frappe.local session and user from a valid SID."""
+def validate_session(sid: str) -> Dict[str, any]:
+    """
+    Check if a session ID is valid and active.
+
+    Args:
+        sid: Session ID to validate
+
+    Returns:
+        dict: Session information with keys:
+            - valid (bool): Whether session is valid
+            - user (str): User associated with session (if valid)
+            - message (str): Error message (if invalid)
+
+    Raises:
+        ValueError: If sid is invalid format
+    """
     try:
+        # Validate input
         if not sid or not isinstance(sid, str):
-            raise PermissionError("Invalid or missing SID")
+            return {"valid": False, "user": None, "message": "Invalid or missing SID"}
 
         Sessions = frappe.qb.DocType("Sessions")
+
         # Fetch the associated user for an active session
         row = (
             frappe.qb.from_(Sessions)
-            .select(Sessions.user)
+            .select(Sessions.user, Sessions.status)
             .where((Sessions.sid == sid) & (Sessions.status == "Active"))
             .limit(1)
         ).run(as_dict=True)
 
         if not row or not row[0].get("user"):
-            raise PermissionError("Invalid or inactive session")
+            return {
+                "valid": False,
+                "user": None,
+                "message": "Invalid or inactive session",
+            }
 
         user = row[0]["user"]
 
-        #Manually bind minimal session locals for permission checks
+        # Additional validation: Check if user is enabled
+        if not frappe.db.get_value("User", user, "enabled"):
+            return {"valid": False, "user": user, "message": f"User {user} is disabled"}
+
+        return {"valid": True, "user": user, "message": "Session is valid"}
+
+    except Exception as e:
+        frappe.log_error(message=str(e), title="Session Validation Error")
+        return {
+            "valid": False,
+            "user": None,
+            "message": f"Error validating session: {str(e)}",
+        }
+
+
+def set_session_user(sid: str, user: str) -> None:
+    """
+    Set the validated session as the current session user.
+
+    This function assumes the session has already been validated.
+    Use validate_session() first to check validity.
+
+    Args:
+        sid: Validated session ID
+        user: User to set as current session user
+
+    Raises:
+        PermissionError: If session binding fails
+    """
+    try:
+        # Manually bind minimal session locals for permission checks
         sess_data = frappe._dict()
         sess_data.sid = sid
         sess_data.user = user
+
+        # Set session in frappe.local
         frappe.local.session = sess_data
         frappe.local.session_obj = None
+
+        # Set the user context
         frappe.set_user(user)
-        frappe.log_error(message=f"Current Session User: {frappe.session.user}, SID: {frappe.session.sid}, session local data: {frappe.local.session}, session data: {frappe.session.data}",  title="Session Bind Info")
+
+        # Log session binding for debugging
+        frappe.log_error(
+            message=f"Current Session User: {frappe.session.user}, "
+            f"SID: {frappe.session.sid}, "
+            f"Session Local Data: {frappe.local.session}, "
+            f"Session Data: {frappe.session.data}",
+            title="Session Bind Info",
+        )
+
     except Exception as e:
-        frappe.log_error(f"Session bind error", str(e))
-        raise
+        frappe.log_error(message=str(e), title="Session Bind Error")
+        raise PermissionError(f"Failed to set session user: {str(e)}")
+
+
+def bind_frappe_session_from_sid(sid: str) -> None:
+    """
+    Validate and bind frappe.local session and user from a SID.
+
+    This is a convenience function that combines validate_session()
+    and set_session_user().
+
+    Args:
+        sid: Session ID to validate and bind
+
+    Raises:
+        PermissionError: If session is invalid or binding fails
+    """
+    # Step 1: Validate the session
+    validation_result = validate_session(sid)
+
+    if not validation_result["valid"]:
+        raise PermissionError(validation_result["message"])
+
+    return validation_result
 
 
 def cleanup_frappe_local():

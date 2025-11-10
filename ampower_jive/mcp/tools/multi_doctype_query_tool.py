@@ -2,7 +2,11 @@ import json
 import frappe
 from frappe import _
 from datetime import datetime, date
-from ..utils.core_utils import _convert_dates_to_strings, _open_fresh_session, _teardown_session
+from ..utils.core_utils import (
+    _convert_dates_to_strings,
+    _open_fresh_session,
+    _teardown_session,
+)
 
 
 def run_multi_doctype_query(filters):
@@ -10,6 +14,8 @@ def run_multi_doctype_query(filters):
     Query parent doctype with optional child tables.
     Returns parent documents with nested child table data.
     Opens a fresh DB session per call to always read latest committed rows.
+    All queries enforce permission checking.
+    Returns errors as empty results with error metadata instead of throwing.
     """
     if isinstance(filters, str):
         filters = json.loads(filters)
@@ -21,10 +27,9 @@ def run_multi_doctype_query(filters):
     child_tables = filters.get("child_tables", [])
     limit = min(int(filters.get("limit", 100)), 1000)
     order_by = filters.get("order_by", "modified desc")
-    use_permissions = bool(filters.get("apply_permissions", False))
 
     if not parent_doctype:
-        frappe.throw(_("Parent doctype not specified"))
+        return {"error": True, "message": "Parent doctype not specified", "data": []}
 
     _open_fresh_session()
     frappe.log_error("session User", frappe.session.user)
@@ -37,35 +42,63 @@ def run_multi_doctype_query(filters):
             try:
                 frappe.clear_document_cache(parent_doctype, document_name)
                 parent_doc = frappe.get_doc(parent_doctype, document_name)
+                parent_doc.check_permission("read")  # Enforce read permission
                 parent_results = [parent_doc.as_dict()]
-                if parent_fields and parent_fields != ["name"] and "*" not in parent_fields:
-                    parent_results = [{k: v for k, v in parent_results[0].items() if k in parent_fields or k == "name"}]
+                if (
+                    parent_fields
+                    and parent_fields != ["name"]
+                    and "*" not in parent_fields
+                ):
+                    parent_results = [
+                        {
+                            k: v
+                            for k, v in parent_results[0].items()
+                            if k in parent_fields or k == "name"
+                        }
+                    ]
             except frappe.DoesNotExistError:
-                return []
+                return {
+                    "error": True,
+                    "message": f"Document {document_name} does not exist",
+                    "data": [],
+                }
+            except frappe.PermissionError:
+                return {
+                    "error": True,
+                    "message": "Permission Error: You do not have permission to access this document",
+                    "data": [],
+                }
         else:
-            if parent_fields and "name" not in parent_fields and "*" not in parent_fields:
+            if (
+                parent_fields
+                and "name" not in parent_fields
+                and "*" not in parent_fields
+            ):
                 parent_fields = ["name"] + parent_fields
 
-            # Use permission-aware API if requested
-            if use_permissions:
-                parent_results = frappe.db.get_list(
+            try:
+                # Always use frappe.get_list (permission-aware)
+                parent_results = frappe.get_list(
                     parent_doctype,
                     filters=parent_filters,
                     fields=parent_fields,
                     limit_page_length=limit,
                     order_by=order_by,
+                    ignore_permissions=False,  # Explicitly enforce permissions
                 )
-            else:
-                parent_results = frappe.db.get_all(
-                    parent_doctype,
-                    filters=parent_filters,
-                    fields=parent_fields,
-                    limit=limit,
-                    order_by=order_by,
-                )
+            except frappe.PermissionError:
+                return {
+                    "error": True,
+                    "message": f"Permission Error: You do not have permission to read {parent_doctype}",
+                    "data": [],
+                }
 
         if not parent_results:
-            return []
+            return {
+                "error": False,
+                "message": "No documents found matching the criteria",
+                "data": [],
+            }
 
         parent_names = [doc.get("name") for doc in parent_results]
 
@@ -80,27 +113,33 @@ def run_multi_doctype_query(filters):
             frappe.clear_cache(doctype=child_doctype)
             frappe.clear_document_cache(child_doctype)
 
-            if child_fields and "parent" not in child_fields and "*" not in child_fields:
+            if (
+                child_fields
+                and "parent" not in child_fields
+                and "*" not in child_fields
+            ):
                 child_fields = ["parent"] + child_fields
 
             child_filters["parent"] = ["in", parent_names]
             child_filters["parenttype"] = parent_doctype
 
-            if use_permissions:
-                child_results = frappe.db.get_list(
+            try:
+                # Always use frappe.get_list with parent_doctype for child table permissions
+                child_results = frappe.get_list(
                     child_doctype,
                     filters=child_filters,
                     fields=child_fields,
                     order_by="idx asc",
                     limit_page_length=0,
-                )  # Permissions applied [web:29][web:18]
-            else:
-                child_results = frappe.db.get_all(
-                    child_doctype,
-                    filters=child_filters,
-                    fields=child_fields,
-                    order_by="idx asc",
-                )  # Skips perms [web:31]
+                    parent_doctype=parent_doctype,  # Provide parent context for permission checks
+                    ignore_permissions=False,  # Explicitly enforce permissions
+                )
+            except frappe.PermissionError:
+                return {
+                    "error": True,
+                    "message": f"Permission Error: You do not have permission to read child table {child_doctype}",
+                    "data": [],
+                }
 
             child_by_parent = {}
             for child in child_results:
@@ -121,8 +160,13 @@ def run_multi_doctype_query(filters):
                 parent_doc[child_fieldname] = child_by_parent.get(name, [])
 
         result = _convert_dates_to_strings(parent_results)
-        frappe.log_error("Query Results Count", f"{parent_doctype}: {len(result)} documents")
-        return result
+        frappe.log_error(
+            "Query Results Count", f"{parent_doctype}: {len(result)} documents"
+        )
+        return {"error": False, "message": "Success", "data": result}
+    except Exception as e:
+        frappe.log_error("Multi Doctype Query Error", str(e))
+        return {"error": True, "message": f"Unexpected error: {str(e)}", "data": []}
     finally:
         # Critical: release the snapshot so the next call sees new commits
         _teardown_session()
