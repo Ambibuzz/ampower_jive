@@ -1,30 +1,51 @@
-from ampower_jive.mcp.utils.core_utils import ensure_frappe_init
-from ampower_jive.mcp.config.clients import openai_client
-import frappe
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
 import json
+import frappe
+from ampower_jive.mcp.config.setup import logger
+from ..config.open_ai_client import OpenAIConfig
+from ampower_jive.mcp.utils.core_utils import ensure_frappe_init
 
 
-def run_helpdesk(user_prompt):
+def run_helpdesk(user_prompt: str) -> str:
+    """
+    Run Helpdesk using OpenAI chat model with Frappe prompt context.
+
+    Args:
+        user_prompt (str): The query from user.
+
+    Returns:
+        str: JSON string containing either 'reply' or 'error'.
+    """
+    logger.info("Helpdesk Tool Initiated...")
+
     try:
         ensure_frappe_init()
     except Exception as e:
-        return json.dumps({"error": f"Frappe initialization failed: {str(e)}"})
+        return {"error": f"Frappe initialization failed: {e}"}
 
-    HELPDESK_PROMPT = (
+    # Get prompt from DB, else fallback
+    helpdesk_prompt = (
         frappe.db.get_value("Prompt", {"name": "HELPDESK"}, "prompt")
-        or "You are a helpful expert, give only answers relevant to asked questions."
+        or "You are a helpful expert in frappe ERPNext, HRMS, India compliance and CRM. Give only answers relevant to asked questions."
     )
 
     try:
+        openai_client = OpenAIConfig().client
+        model = OpenAIConfig()._get_helpdesk_model()
+
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini-search-preview",
+            model=model,
             messages=[
-                {"role": "system", "content": HELPDESK_PROMPT},
+                {"role": "system", "content": helpdesk_prompt},
                 {"role": "user", "content": user_prompt},
             ],
         )
 
-        return json.dumps({"reply": response.choices[0].message.content})
+        reply = response.choices[0].message.content.strip()
+        return {"reply": reply}
 
     except Exception as e:
-        return json.dumps({"error": f"Failed to get the response : {str(e)} "})
+        logger.exception("Error while running helpdesk tool")
+        return {"error": f"Failed to get response: {e}"}

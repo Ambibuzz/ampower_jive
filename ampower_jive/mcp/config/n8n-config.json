@@ -1,0 +1,969 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -416,
+        -576
+      ],
+      "id": "708d272e-ba42-4fde-a510-59eff7421e70",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8a41f382-1986-4755-a426-980477aca64d",
+              "leftValue": "={{ $json.needs_clarification }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -832
+      ],
+      "id": "c06e00b0-7e3b-4162-8e79-961945158d36",
+      "name": "Check If Clarification Needed"
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $('When chat message received').item.json.metadata.instanceEndPoint }}/api/method/frappe.desk.form.load.getdoctype?doctype={{ $json.doctype }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cookie",
+              "value": "=sid={{ $('When chat message received').item.json.metadata.n8nchatui.sessionId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        816,
+        -816
+      ],
+      "id": "88c3811c-f881-42f2-8342-7141dab61a2b",
+      "name": "Get Doctype Metadata"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=* **User question:** `{{ $('When chat message received').item.json.chatInput }}`\n* **NLP analysis:** `{{ $('Analyze User Question').item.json.output }}`\n* **Doctype metadata (strict):** `{{ $json.data.toJsonString() }}`",
+        "options": {
+          "systemMessage": "=You are a Frappe/ERPNext data query specialist. Extract data using MCP tools by providing parameters directly.\n\n## Tool Selection\n\n**multi_doctype_query** - Fetch data/records/fields\n**get_count_of_documents** - Get counts only\n\n## Parameter Format\n\nIMPORTANT: Pass parameters as INDIVIDUAL FIELDS, not as nested objects.\n\n### For multi_doctype_query:\n\n**Required:**\n- doctype: string (e.g., \"Purchase Order\", \"Sales Order\")\n\n**Optional:**\n- document_name: string (e.g., \"PUR-ORD-2025-00009\")\n- parent_fields: array of strings (e.g., [\"name\", \"supplier\", \"transaction_date\"])\n- child_tables: array of objects (e.g., [{\"child_doctype\": \"Purchase Order Item\", \"fields\": [\"item_code\", \"item_name\", \"qty\"]}])\n- parent_filters: object (e.g., {\"status\": \"Draft\"})\n- limit: number (default: 100)\n- order_by: string (default: \"modified desc\")\n\n### For get_count_of_documents:\n\n**Required:**\n- doctype: string\n\n**Optional:**\n- parent_filters: object\n- child_tables: array of objects\n\n## Example Queries\n\n### Specific Document with Items\nUser: \"items on purchase order PUR-ORD-2025-00009\"\n\nCall multi_doctype_query with:\n- doctype: \"Purchase Order\"\n- document_name: \"PUR-ORD-2025-00009\"\n- parent_fields: [\"name\", \"supplier\", \"transaction_date\"]\n- child_tables: [{\"child_doctype\": \"Purchase Order Item\", \"fields\": [\"item_code\", \"item_name\", \"qty\", \"rate\", \"amount\"]}]\n\n### Filtered Query\nUser: \"draft sales orders for customer ABC\"\n\nCall multi_doctype_query with:\n- doctype: \"Sales Order\"\n- parent_filters: {\"status\": \"Draft\", \"customer\": \"ABC\"}\n- parent_fields: [\"name\", \"customer\", \"transaction_date\", \"grand_total\"]\n- limit: 100\n\n### Count Query\nUser: \"how many pending purchase orders\"\n\nCall get_count_of_documents with:\n- doctype: \"Purchase Order\"\n- parent_filters: {\"status\": \"To Receive\"}\n\n## Field Mappings\n\n| User Says | Field/Doctype |\n|-----------|---------------|\n| items | Child table Item (e.g., Purchase Order Item, Sales Order Item) |\n| item name | item_name |\n| item code | item_code |\n| quantity/qty | qty |\n| rate/price | rate |\n| amount/total | amount |\n| date | transaction_date |\n| supplier | supplier |\n| customer | customer |\n\n## Important Rules\n\n1. **ALWAYS provide doctype parameter** - This is mandatory\n2. **Use document_name for specific documents** - When user mentions doc ID (PUR-ORD-2025-00009)\n3. **Specify child_doctype exactly** - \"Purchase Order Item\" not \"Purchase Order Items\"\n4. **Keep field lists minimal** - Only request fields user needs\n5. **Common doctypes**: \"Sales Order\", \"Purchase Order\", \"Sales Invoice\", \"Purchase Invoice\", \"Quotation\"\n\n## Response Format\n\nAfter MCP returns results, summarize naturally:\n- \"Found 5 items on Purchase Order PUR-ORD-2025-00009: [list key details]\"\n- \"No records found for those filters\"\n- If error: Explain in simple terms what went wrong\n",
+          "enableStreaming": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -368
+      ],
+      "id": "f9183ae4-7f65-454e-98b5-b59e94c76513",
+      "name": "Generate API Query"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are a Frappe Framework data query assistant with access to external tools. \nAnalyze the user's question and extract the following information:\n\n1. Doctype (e.g., {{ JSON.stringify(Object.keys($json.data)) }})  \n   - Always identify and use the **parent doctype name** only.  \n   - Never use child table doctype names in the \"doctype\" field.  \n   - For example: If the user asks, \"List all items in a particular Sales Order,\" set \"doctype\" to \"Sales Order\" (parent), not \"Sales Order Item\" (child).  \n   - This rule is important because meta data will be retrieved for both parent and child doctypes automatically later in the flow.\n\n2. Fields requested\n3. Operations needed (sum, count, latest, filter)\n4. Filters to apply\n5. Specific document name if mentioned\n6. Permissions: If the question does not specify a doctype, prompt the user to choose from the allowed doctypes:  \n   {{ JSON.stringify(Object.keys($json.data)) }}\n\nWhen asking for clarification, list the available doctypes as bullet points.\n\nRespond ONLY in this JSON format:\n\n{\n  \"doctype\": \"identified_doctype_or_null\",\n  \"fields\": [\"field1\", \"field2\"],\n  \"operations\": {\n    \"type\": \"sum|count|latest|filter\",\n    \"details\": \"operation details\"\n  },\n  \"filters\": [{\"field\": \"field_name\", \"operator\": \">\", \"value\": \"value\"}],\n  \"document_name\": \"specific_doc_name_or_null\",\n  \"needs_clarification\": true|false,\n  \"clarification_message\": \"what to ask if needed\"\n}\n\nRules:\n- Always return the JSON in lowercase for true|false values.\n- Only include fields and filters relevant to the question.\n- Always prefer parent doctype names when determining \"doctype\".\n- Never put child table names in the \"doctype\" field.\n- If doctype is missing, set \"needs_clarification\" to true and include available doctypes in \"clarification_message\".\n- Do not include any text outside the JSON response.",
+          "enableStreaming": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -832
+      ],
+      "id": "61265c91-31d6-4013-848b-05852684705f",
+      "name": "Analyze User Question"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the raw text from AI Agent output\nlet raw = $json.output || \"\";\n\n// Remove markdown code fences\nraw = raw.replace(/```json|```/g, \"\").trim();\n\n// Parse into JSON\nlet parsed = JSON.parse(raw);\n\n// Return as an item\nreturn parsed;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -832
+      ],
+      "id": "1f04ce0d-8ede-4093-9395-8c887260b4e8",
+      "name": "Parse Analyze User Question to JSON"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over all input items\nconst results = [];\n\nfor (const item of $input.all()) {\n  const docs = item.json.docs || [];\n  const mapped = {};\n\n  docs.forEach(doc => {\n    const doctypeName = doc.name || \"\";\n\n    // skip unwanted doctypes\n    if (\n      doctypeName.includes(\"Custom Item Sales Enquiry\") ||\n      doctypeName.includes(\"Sales Taxes and Charges\") ||\n      doctypeName.includes(\"Packed Item\") ||\n      doctypeName.includes(\"Pricing Rule Detail\") ||\n      doctypeName.includes(\"Payment Schedule\") ||\n      doctypeName.includes(\"Sales Team\")\n    ) { \n      return;\n    }\n\n    const cleanedFields = (doc.fields || [])\n      .filter(f => ![\"Section Break\", \"Column Break\", \"Tab Break\"].includes(f.fieldtype))\n      .map(f => ({\n        fieldname: f.fieldname,\n        fieldtype: f.fieldtype,\n        options: f.options || \"\",\n        default: f.default || \"\",\n        reqd: f.reqd || 0,\n        label: f.label,\n        idx: f.idx,\n      }));\n\n    // add doctype as a key in the object\n    mapped[doctypeName] = cleanedFields;\n  });\n\n  results.push({ data: mapped });\n}\n\n// Return cleaned JSON for each item\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        -816
+      ],
+      "id": "0f00ba56-0130-4aa7-8249-b3dd1358ba01",
+      "name": "Remove Unnecessory Meta"
+    },
+    {
+      "parameters": {
+        "height": 1152,
+        "width": 2288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -944,
+        -1088
+      ],
+      "typeVersion": 1,
+      "id": "16eb6f91-09d4-49c6-87ae-2c488b13b2ba",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over all input items\nconst results = [];\n\nfor (const item of $input.all()) {\n  const docs = item.json.docs[0].included_doctypes || [];\n  const mapped = {};\n\n  docs.forEach(doc => {\n    const doctypeName = doc.doctype_name || \"\";\n\n    // add doctype as a key in the object\n    mapped[doctypeName] = doctypeName;\n  });\n\n  results.push({data: mapped});\n}\n\n// Return cleaned JSON for each item\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        -832
+      ],
+      "id": "601f4ca9-f212-4bea-9db0-74ae8a930ebc",
+      "name": "Get Permitted Doctypes"
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $('When chat message received').item.json.metadata.instanceEndPoint }}/api/method/frappe.desk.form.load.getdoc",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "doctype",
+              "value": "Jive Config"
+            },
+            {
+              "name": "name",
+              "value": "Jive Config"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cookie",
+              "value": "=sid={{ $('When chat message received').item.json.metadata.n8nchatui.sessionId }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -816,
+        -832
+      ],
+      "id": "d01bbc73-90d6-4497-8fe0-e02c2e20239e",
+      "name": "Fetch Permitted Doctype"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "allowedOrigins": "https://example.ampower.cloud"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2576,
+        -832
+      ],
+      "id": "37e49d42-ddf1-4f5c-bd4b-4574b478a129",
+      "name": "When chat message received",
+      "webhookId": "7749fe7d-5017-41fd-aad2-4d33e3bdaf8d"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        -112
+      ],
+      "id": "0a622972-0e07-49d8-b267-a4b104986171",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.metadata.n8nchatui.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2144,
+        -176
+      ],
+      "id": "fba379ff-6312-4f0e-af71-35e1410a6163",
+      "name": "Orchestration Agent Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Initiale Question: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a Frappe, ERPNext, HRMS, and India Compliance assistant. \nYour task is to analyze the user's query and classify it into exactly ONE of the following categories using the given flags:\n\n1. Helpdesk / How-To Related  \n   - User asks how to perform an action in Frappe, ERPNext, or HRMS.  \n   - Examples: \"How to create a Sales Order?\", \"How to submit a Trip document?\", \"How to delete a document?\", \"How to use filters to search for documents?\"\n\n2. Data Retrieval / Document Query Related  \n   - User asks to list, fetch, count, or retrieve data from any Doctype.  \n   - Examples: \"List all Sales Orders created today\", \"Get all Trip documents assigned to a user\", \"Show all fields from Employee doctype\"\n\n3. Context Not Clear / Ambiguous Query  \n   - Query is unclear, incomplete, or cannot be classified into the above categories.\n   - If this flag is true, in addition to the JSON output, also generate a short clarification question to ask the user which part of the query or context they mean.\n\nOutput Format:\nYou must ONLY respond with the following strict JSON format, using lowercase true/false and ensuring only ONE flag is true per response:\n\n{\n  \"is_helpdesk_related\": false,\n  \"is_data_related\": false,\n  \"context_not_cleared\": true,\n  \"clarification_message\": \"Could you please explain which context or detail you are referring to in your question?\"\n}\n\nRules:\n- Only one of the first three flags can be true at a time.\n- Always provide the `clarification_message` field if `context_not_cleared` is true.\n- Do not include explanations or extra text outside the JSON.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -2352,
+        -832
+      ],
+      "id": "b525958c-a0a1-45ed-b75d-31c36499d8ce",
+      "name": "Orchestration Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2336,
+        -608
+      ],
+      "id": "fdc9c702-c9ad-43a6-bcda-52739b94288b",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.is_helpdesk_related }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "b2d8ec4a-8806-41c6-b364-e41e4ca6f9c8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "72262645-2ad4-4bd3-8751-86bed017be10",
+                    "leftValue": "={{ $json.is_data_related }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "739b8315-1a80-47bc-9c70-6af31c083f6e",
+                    "leftValue": "={{ $json.context_not_cleared }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1776,
+        -848
+      ],
+      "id": "5fce693a-5eee-4ea7-82e1-ed42c2e99f86",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the raw text from AI Agent output\nlet raw = $json.output || \"\";\n\n// Remove markdown code fences\nraw = raw.replace(/```json|```/g, \"\").trim();\n\n// Parse into JSON\nlet parsed = JSON.parse(raw);\n\n// Return as an item\nreturn parsed;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2000,
+        -832
+      ],
+      "id": "7f9cf641-8eff-498b-9e1d-90d2b32391dd",
+      "name": "JSON Convertor"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a polite, friendly, and conversational AI assistant connected to the Helpdesk MCP tool. \nYour task is to process the API responses from the Helpdesk MCP tool and answer user questions clearly and helpfully.\n\nGuidelines:\n- Always write in a friendly and professional tone.\n- Make your response easy to read and focused on helping the user quickly understand the answer.\n- If a calculation (like totals, counts, or averages) is needed, clearly show and explain each step before giving the final result.\n- Present the information in simple text or short bullet points — do NOT use tables.\n- Must call Helpdesk MCP Tool.\n- If the Helpdesk MCP tool fails or returns an error, do NOT show raw JSON or technical error messages. Instead, say: “The helpdesk tool is not working right now. Please try again later.”\n- Avoid unnecessary technical jargon unless the user specifically asks for it.\n\nTools Listed:\n- Helpdesk Tool.\n- Calculator\n\nYour goal:\n- Use the data from the Helpdesk MCP tool to provide accurate, human-friendly answers.\n- Make sure your explanation feels natural and conversational so that any user can understand it easily."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -1568
+      ],
+      "id": "daf8ca3a-18b3-47d3-b6d9-21c73ec35662",
+      "name": "Helpdesk AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "Decision Making Nodes",
+        "height": 656,
+        "width": 1184,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2656,
+        -960
+      ],
+      "id": "9e3ab1e3-9f53-4bc7-9206-32864f7d9818",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -1264
+      ],
+      "id": "01e03f5d-4a11-4833-9a02-b0e99389fed7",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "content": "Shared Memory",
+        "height": 352,
+        "width": 1184,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        -352
+      ],
+      "id": "d2a8a8fa-ac0b-4c10-8d82-5cb54e3b1ede",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "get_count_of_documents"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "1d87b334-3d49-487f-af7f-f6e1709c06de",
+      "name": "Get Document Count",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "multi_doctype_query"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        -112
+      ],
+      "id": "5e2db509-f3b4-41b9-a51f-62ad88b77adf",
+      "name": "Get Multip Documents Data",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.clarification_message }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, you task is beuatify user input in a polite way"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1504,
+        -688
+      ],
+      "id": "1ae63485-fdfe-4353-bdbc-3e7d5934b6ca",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -512
+      ],
+      "id": "a08eb783-9cd7-4038-aac4-c3cca6983c56",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        -1280
+      ],
+      "id": "8bc6dfc7-1d54-4398-b6ff-c43cd142639c",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://example.ampower.cloud:1111/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "helpdesk_tool"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        -32,
+        -1296
+      ],
+      "id": "6848207e-2870-4e72-8756-3d913344f37c",
+      "name": "Helpdesk",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.clarification_message }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, you task is beuatify user input in a polite way"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        -1088
+      ],
+      "id": "38489e58-6e99-4a00-ad4b-8f4bef7c009a",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        -912
+      ],
+      "id": "a4a9da41-3413-4553-aedb-8c822ec2a104",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze User Question",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Clarification Needed": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Doctype Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Doctype Metadata": {
+      "main": [
+        [
+          {
+            "node": "Remove Unnecessory Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate API Query": {
+      "main": [
+        []
+      ]
+    },
+    "Analyze User Question": {
+      "main": [
+        [
+          {
+            "node": "Parse Analyze User Question to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Analyze User Question to JSON": {
+      "main": [
+        [
+          {
+            "node": "Check If Clarification Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Unnecessory Meta": {
+      "main": [
+        [
+          {
+            "node": "Generate API Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Permitted Doctypes": {
+      "main": [
+        [
+          {
+            "node": "Analyze User Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Permitted Doctype": {
+      "main": [
+        [
+          {
+            "node": "Get Permitted Doctypes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate API Query",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Agent Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Analyze User Question",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Generate API Query",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Agent": {
+      "main": [
+        [
+          {
+            "node": "JSON Convertor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Permitted Doctype",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Convertor": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Document Count": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generate API Query",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Multip Documents Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generate API Query",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Helpdesk": {
+      "ai_tool": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "When chat message received": [
+      {
+        "metadata": {
+          "clientCurrentDateTime": "Mon Nov 10 2025 15:44:10 GMT+0530 (India Standard Time)",
+          "clientCurrentTimezone": "Asia/Calcutta",
+          "clientQueryParams": {},
+          "clientUserAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+          "n8nchatui": {
+            "sessionId": "2ef16d79395a4e1d0d11b7a9c3605d52d2d249122bdf43ddb2988437"
+          },
+          "instanceEndPoint": "example.ampower.cloud"
+        },
+        "action": "sendMessage",
+        "sessionId": "bbecb62a-0d7f-4e67-9413-6236e561dd20",
+        "chatInput": "list all the items with there images"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e0becec129953bb2c17b52bb0fb1d80a81ee5900724a9e27aad02c289d416967"
+  }
+}
