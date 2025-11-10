@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "n8n_webhook_url",
+  "active_jive",
   "column_break_msoo",
   "instance_end_point",
   "section_break_xipw",
@@ -83,12 +84,18 @@
    "fieldtype": "Password",
    "label": "Open AI Key",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "active_jive",
+   "fieldtype": "Check",
+   "label": "Active Jive"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-11-05 11:21:27.621464",
+ "modified": "2025-11-10 13:30:11.639707",
  "modified_by": "Administrator",
  "module": "Ampower Jive",
  "name": "Jive Config",
