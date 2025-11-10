@@ -213,28 +213,9 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://HOST:PORT/mcp",
-        "serverTransport": "httpStreamable",
-        "include": "selected",
-        "includeTools": [
-          "helpdesk_tool"
-        ],
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
-      "typeVersion": 1.1,
-      "position": [
-        -112,
-        -1264
-      ],
-      "id": "7ccc6e43-8c2e-45df-bd38-b9a03cd2a77a",
-      "name": "Heldesk"
-    },
-    {
-      "parameters": {
         "public": true,
         "options": {
-          "allowedOrigins": "https://test.test.cloud"
+          "allowedOrigins": "https://test.example.cloud"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -434,7 +415,7 @@
         "promptType": "define",
         "text": "={{ $('When chat message received').item.json.chatInput }}",
         "options": {
-          "systemMessage": "You are a polite, friendly, and conversational AI assistant connected to the Helpdesk MCP tool. \nYour task is to process the API responses from the Helpdesk MCP tool and answer user questions clearly and helpfully.\n\nGuidelines:\n- Always write in a friendly and professional tone.\n- Make your response easy to read and focused on helping the user quickly understand the answer.\n- If a calculation (like totals, counts, or averages) is needed, clearly show and explain each step before giving the final result.\n- Present the information in simple text or short bullet points — do NOT use tables.\n- If the Helpdesk MCP tool fails or returns an error, do NOT show raw JSON or technical error messages. Instead, say: “The helpdesk tool is not working right now. Please try again later.”\n- Avoid unnecessary technical jargon unless the user specifically asks for it.\n\nYour goal:\n- Use the data from the Helpdesk MCP tool to provide accurate, human-friendly answers.\n- Make sure your explanation feels natural and conversational so that any user can understand it easily."
+          "systemMessage": "You are a polite, friendly, and conversational AI assistant connected to the Helpdesk MCP tool. \nYour task is to process the API responses from the Helpdesk MCP tool and answer user questions clearly and helpfully.\n\nGuidelines:\n- Always write in a friendly and professional tone.\n- Make your response easy to read and focused on helping the user quickly understand the answer.\n- If a calculation (like totals, counts, or averages) is needed, clearly show and explain each step before giving the final result.\n- Present the information in simple text or short bullet points — do NOT use tables.\n- Must call Helpdesk MCP Tool.\n- If the Helpdesk MCP tool fails or returns an error, do NOT show raw JSON or technical error messages. Instead, say: “The helpdesk tool is not working right now. Please try again later.”\n- Avoid unnecessary technical jargon unless the user specifically asks for it.\n\nTools Listed:\n- Helpdesk Tool.\n- Calculator\n\nYour goal:\n- Use the data from the Helpdesk MCP tool to provide accurate, human-friendly answers.\n- Make sure your explanation feels natural and conversational so that any user can understand it easily."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -445,31 +426,6 @@
       ],
       "id": "daf8ca3a-18b3-47d3-b6d9-21c73ec35662",
       "name": "Helpdesk AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-4o-mini",
-          "mode": "list",
-          "cachedResultName": "gpt-4o-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        -544,
-        -1264
-      ],
-      "id": "3aeae366-ceba-4ec7-afce-21985a202bcc",
-      "name": "Helpdesk Fireworks AI",
-      "credentials": {
-        "openAiApi": {
-          "id": "7kkKtrcTllzCUqqg",
-          "name": "AmPower Jive ( Development )"
-        }
-      }
     },
     {
       "parameters": {
@@ -516,8 +472,9 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://HOST:PORT/mcp",
+        "endpointUrl": "http://example.com:33001/mcp",
         "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
         "include": "selected",
         "includeTools": [
           "get_count_of_documents"
@@ -531,12 +488,19 @@
         -112
       ],
       "id": "1d87b334-3d49-487f-af7f-f6e1709c06de",
-      "name": "Get Document Count"
+      "name": "Get Document Count",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
-        "endpointUrl": "http://HOST:PORT/mcp",
+        "endpointUrl": "http://example.com:33001/mcp",
         "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
         "include": "selected",
         "includeTools": [
           "multi_doctype_query"
@@ -550,7 +514,13 @@
         -112
       ],
       "id": "5e2db509-f3b4-41b9-a51f-62ad88b77adf",
-      "name": "Get Multip Documents Data"
+      "name": "Get Multip Documents Data",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -591,6 +561,57 @@
         "openAiApi": {
           "id": "7kkKtrcTllzCUqqg",
           "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        -1280
+      ],
+      "id": "8bc6dfc7-1d54-4398-b6ff-c43cd142639c",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "7kkKtrcTllzCUqqg",
+          "name": "AmPower Jive ( Development )"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://example.com:33001/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "helpdesk_tool"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        -32,
+        -1296
+      ],
+      "id": "6848207e-2870-4e72-8756-3d913344f37c",
+      "name": "Helpdesk",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "yjs8yVTRmgdAxoos",
+          "name": "Bearer Auth account"
         }
       }
     }
@@ -685,17 +706,6 @@
           {
             "node": "Get Permitted Doctypes",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Heldesk": {
-      "ai_tool": [
-        [
-          {
-            "node": "Helpdesk AI Agent",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -807,17 +817,6 @@
         ]
       ]
     },
-    "Helpdesk Fireworks AI": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Helpdesk AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Calculator1": {
       "ai_tool": [
         [
@@ -861,29 +860,32 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Helpdesk": {
+      "ai_tool": [
+        [
+          {
+            "node": "Helpdesk AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {
-    "When chat message received": [
-      {
-        "metadata": {
-          "clientCurrentDateTime": "Thu Oct 30 2025 16:26:40 GMT+0530 (India Standard Time)",
-          "clientCurrentTimezone": "Asia/Calcutta",
-          "clientQueryParams": {},
-          "clientUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
-          "n8nchatui": {
-            "sessionId": "025b2e0615aff367fd2a4d815c4f24357216bd21855ab8562d222134"
-          },
-          "instanceEndPoint": "test.test.cloud"
-        },
-        "action": "sendMessage",
-        "sessionId": "46191f31-8ac3-4282-a6f1-598b30d9ebb1",
-        "chatInput": "can u please give me the count of Roll"
-      }
-    ]
-  },
+  "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "e0becec129953bb2c17b52bb0fb1d80a81ee5900724a9e27aad02c289d416967"
   }
 }
