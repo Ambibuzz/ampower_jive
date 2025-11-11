@@ -79,6 +79,7 @@ def make_local_mcp_request(method, params={}, request_id="frappe-mcp-client"):
 
 
 def ensure_frappe_init():
+    pass
     """Ensure Frappe is initialized"""
     try:
         if not hasattr(frappe, "db") or not frappe.db:
@@ -138,8 +139,8 @@ def _teardown_session():
     try:
         if getattr(frappe, "db", None):
             # Ensure nothing is left pending and release connection back to pool
-            frappe.db.commit()
             frappe.db.close()
+            frappe.destroy()
     except Exception:
         pass
 
@@ -260,21 +261,3 @@ def bind_frappe_session_from_sid(sid: str) -> None:
         raise PermissionError(validation_result["message"])
 
     return validation_result
-
-
-def cleanup_frappe_local():
-    """
-    Clear per-request locals to avoid cross-request contamination in worker reuse.
-    """
-    try:
-        # Reset user to 'Guest' and drop local session safely
-        frappe.set_user("Guest")
-    except Exception:
-        pass
-    finally:
-        if hasattr(frappe, "local"):
-            # Drop session reference
-            try:
-                frappe.local.session = None
-            except Exception:
-                pass

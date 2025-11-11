@@ -1,5 +1,6 @@
 import time
 import os, frappe, logging
+from ..utils.core_utils import _teardown_session
 from ampower_jive.mcp.config.middleware import FrappeSIDAuthMiddleware
 
 
@@ -15,28 +16,16 @@ try:
 
         # Registering middleware globally so it runs for all tool calls
         mcp.add_middleware(FrappeSIDAuthMiddleware())
-        while True:
-            try:
-                frappe.init(site=site_name)
-                frappe.connect()
-                logger.info(f"Frappe initialized for site: {site_name}")
-
-                # Add connection health check
-                frappe.db.sql("SELECT 1")
-                logger.info("Database connection verified")
-
-                break
-            except Exception as e:
-                logger.error(f"Frappe init failed: {e}. Retrying in 5 seconds...")
-                time.sleep(5)
-
         mcp.run(
             transport="streamable-http",
             host=os.environ.get("MCP_HOST"),
-            port=int(os.environ.get("MCP_PORT"))
+            port=int(os.environ.get("MCP_PORT")),
+            stateless_http=True,
+            log_level="info"
         )
 
 except Exception as e:
+    _teardown_session()
     logger.error(f"Failed to start MCP server: {e}")
 
 if __name__ == "__main__":

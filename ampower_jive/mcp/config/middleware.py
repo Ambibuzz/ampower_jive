@@ -1,10 +1,10 @@
 import json, frappe
 from fastmcp.exceptions import ToolError
-from fastmcp.server.middleware import Middleware, MiddlewareContext
+from ..utils.core_utils import _teardown_session
 from fastmcp.server.dependencies import get_http_headers
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 from ampower_jive.mcp.utils.core_utils import (
-    bind_frappe_session_from_sid,
-    cleanup_frappe_local
+    bind_frappe_session_from_sid
 )
 
 
@@ -20,9 +20,10 @@ class FrappeSIDAuthMiddleware(Middleware):
                 sid = parts[0]
             elif len(parts) == 2 and parts[0].lower() == "bearer":
                 sid = parts[1]
-        frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}")
+        frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}")
 
         if not sid:
+            _teardown_session()
             raise ToolError(
                 {
                     "error": "Unauthorized",
@@ -55,6 +56,7 @@ class FrappeSIDAuthMiddleware(Middleware):
             return await call_next(context)
 
         except Exception:
+            _teardown_session()
             raise ToolError(
                 {
                     "error": "Unauthorized",
@@ -64,5 +66,4 @@ class FrappeSIDAuthMiddleware(Middleware):
             )
 
         finally:
-            # Clean up frappe locals after each request to prevent leakage
-            cleanup_frappe_local()
+            _teardown_session()
