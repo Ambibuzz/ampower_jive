@@ -7,48 +7,52 @@ from ampower_jive.mcp.config.setup import logger
 from ..config.open_ai_client import OpenAIConfig
 from ampower_jive.mcp.utils.core_utils import ensure_frappe_init, _teardown_session
 
+try:
+    def run_helpdesk(user_prompt: str) -> str:
+        """
+        Run Helpdesk using OpenAI chat model with Frappe prompt context.
 
-def run_helpdesk(user_prompt: str) -> str:
-    """
-    Run Helpdesk using OpenAI chat model with Frappe prompt context.
+        Args:
+            user_prompt (str): The query from user.
 
-    Args:
-        user_prompt (str): The query from user.
+        Returns:
+            str: JSON string containing either 'reply' or 'error'.
+        """
+        logger.info("Helpdesk Tool Initiated...")
 
-    Returns:
-        str: JSON string containing either 'reply' or 'error'.
-    """
-    logger.info("Helpdesk Tool Initiated...")
+        try:
+            ensure_frappe_init()
+        except Exception as e:
+            _teardown_session()
+            return {"error": f"Frappe initialization failed: {e}"}
 
-    try:
-        ensure_frappe_init()
-    except Exception as e:
-        _teardown_session()
-        return {"error": f"Frappe initialization failed: {e}"}
-
-    # Get prompt from DB, else fallback
-    helpdesk_prompt = (
-        frappe.db.get_value("Prompt", {"name": "HELPDESK"}, "prompt")
-        or "You are a helpful expert in frappe ERPNext, HRMS, India compliance and CRM. Give only answers relevant to asked questions."
-    )
-
-    try:
-        openai_client = OpenAIConfig().client
-        model = OpenAIConfig()._get_helpdesk_model()
-
-        response = openai_client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": helpdesk_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
+        # Get prompt from DB, else fallback
+        helpdesk_prompt = (
+            frappe.db.get_value("Prompt", {"name": "HELPDESK"}, "prompt")
+            or "You are a helpful expert in frappe ERPNext, HRMS, India compliance and CRM. Give only answers relevant to asked questions."
         )
 
-        reply = response.choices[0].message.content.strip()
-        _teardown_session()
-        return {"reply": reply}
+        try:
+            openai_client = OpenAIConfig().client
+            model = OpenAIConfig()._get_helpdesk_model()
+            logger.info(f"User question: {user_prompt}")
+            response = openai_client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": helpdesk_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
 
-    except Exception as e:
-        logger.exception("Error while running helpdesk tool")
-        _teardown_session()
-        return {"error": f"Failed to get response: {e}"}
+            reply = response.choices[0].message.content.strip()
+            _teardown_session()
+            logger.info(f"Helpdesk Tool Completed, Response : {reply}")
+            return {"reply": reply}
+
+        except Exception as e:
+            logger.error(f"Error while running helpdesk tool {e}")
+            _teardown_session()
+            return {"error": f"Failed to get response: {e}"}
+except Exception as e:
+    logger.error(f"Error while running helpdesk tool: {e}")
+    _teardown_session()

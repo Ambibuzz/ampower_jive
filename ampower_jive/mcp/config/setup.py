@@ -1,3 +1,6 @@
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
 import time
 import os, frappe, logging
 from ..utils.core_utils import _teardown_session

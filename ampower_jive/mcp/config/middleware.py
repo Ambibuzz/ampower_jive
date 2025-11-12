@@ -1,4 +1,7 @@
-import json, frappe
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
+import frappe
 from fastmcp.exceptions import ToolError
 from ..utils.core_utils import _teardown_session
 from fastmcp.server.dependencies import get_http_headers
@@ -8,62 +11,70 @@ from ampower_jive.mcp.utils.core_utils import (
 )
 
 
-class FrappeSIDAuthMiddleware(Middleware):
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
-        headers = get_http_headers() or {}
-        sid = None
+logger = frappe.logger("middleware", allow_site=True, file_count=2)
 
-        auth_header = headers.get("authorization") or headers.get("Authorization")
-        if auth_header:
-            parts = auth_header.split()
-            if len(parts) == 1:
-                sid = parts[0]
-            elif len(parts) == 2 and parts[0].lower() == "bearer":
-                sid = parts[1]
-        frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}")
 
-        if not sid:
-            _teardown_session()
-            raise ToolError(
-                {
-                    "error": "Unauthorized",
-                    "code": 401,
-                    "detail": "Missing Authorization header with SID",
-                }
-            )
+try:
+    class FrappeSIDAuthMiddleware(Middleware):
+        async def on_call_tool(self, context: MiddlewareContext, call_next):
+            headers = get_http_headers() or {}
+            sid = None
 
-        try:
-            # Validate and bind frappe session
-            validation_result = bind_frappe_session_from_sid(sid)
+            auth_header = headers.get("authorization") or headers.get("Authorization")
+            if auth_header:
+                parts = auth_header.split()
+                if len(parts) == 1:
+                    sid = parts[0]
+                elif len(parts) == 2 and parts[0].lower() == "bearer":
+                    sid = parts[1]
+            frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}")
 
-            # Optionally get validated user directly
-            # If validate_session is accessible, use it to avoid re-querying later
-            try:
-                user = (
-                    validation_result.get("user")
-                    if validation_result and validation_result.get("valid")
-                    else frappe.session.user
+            if not sid:
+                _teardown_session()
+                raise ToolError(
+                    {
+                        "error": "Unauthorized",
+                        "code": 401,
+                        "detail": "Missing Authorization header with SID",
+                    }
                 )
+
+            try:
+                # Validate and bind frappe session
+                validation_result = bind_frappe_session_from_sid(sid)
+
+                # Optionally get validated user directly
+                # If validate_session is accessible, use it to avoid re-querying later
+                try:
+                    user = (
+                        validation_result.get("user")
+                        if validation_result and validation_result.get("valid")
+                        else frappe.session.user
+                    )
+                except Exception:
+                    user = getattr(frappe.session, "user", None)
+
+                # Store session info in FastMCP context state for tools
+                context.fastmcp_context.set_state("frappe_sid", sid)
+                if user:
+                    context.fastmcp_context.set_state("frappe_user", user)
+
+                # Continue to the tool call
+                _teardown_session()
+                return await call_next(context)
+
             except Exception:
-                user = getattr(frappe.session, "user", None)
+                _teardown_session()
+                raise ToolError(
+                    {
+                        "error": "Unauthorized",
+                        "code": 401,
+                        "detail": "Invalid or expired SID",
+                    }
+                )
 
-            # Store session info in FastMCP context state for tools
-            context.fastmcp_context.set_state("frappe_sid", sid)
-            if user:
-                context.fastmcp_context.set_state("frappe_user", user)
-
-            # Continue to the tool call
-            return await call_next(context)
-
-        except Exception:
-            _teardown_session()
-            raise ToolError(
-                {
-                    "error": "Unauthorized",
-                    "code": 401,
-                    "detail": "Invalid or expired SID",
-                }
-            )
-
-        finally:
-            _teardown_session()
+            finally:
+                _teardown_session()
+except Exception as e:
+    logger.error(f"Error in Middleware: {e}")
+    _teardown_session()
