@@ -6,17 +6,17 @@ from fastmcp.exceptions import ToolError
 from ..utils.core_utils import _teardown_session
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware, MiddlewareContext
-from ampower_jive.mcp.utils.core_utils import (
-    bind_frappe_session_from_sid
-)
+from ampower_jive.mcp.utils.core_utils import bind_frappe_session_from_sid
 
-
+frappe.utils.logger.set_log_level("DEBUG")
 logger = frappe.logger("middleware", allow_site=True, file_count=2)
 
 
 try:
+
     class FrappeSIDAuthMiddleware(Middleware):
         async def on_call_tool(self, context: MiddlewareContext, call_next):
+            logger.debug("FrappeSIDAuthMiddleware invoked")
             headers = get_http_headers() or {}
             sid = None
 
@@ -27,7 +27,11 @@ try:
                     sid = parts[0]
                 elif len(parts) == 2 and parts[0].lower() == "bearer":
                     sid = parts[1]
-            frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}")
+            logger.info(f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}")
+            frappe.log_error(
+                "Middleware Log",
+                f"Headers: {auth_header}, SID: {sid}, usesr:{frappe.session.user}",
+            )
 
             if not sid:
                 _teardown_session()
@@ -75,6 +79,7 @@ try:
 
             finally:
                 _teardown_session()
+
 except Exception as e:
     logger.error(f"Error in Middleware: {e}")
     _teardown_session()

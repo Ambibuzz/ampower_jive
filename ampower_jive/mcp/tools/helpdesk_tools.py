@@ -8,6 +8,7 @@ from ..config.open_ai_client import OpenAIConfig
 from ampower_jive.mcp.utils.core_utils import ensure_frappe_init, _teardown_session
 
 try:
+
     def run_helpdesk(user_prompt: str) -> str:
         """
         Run Helpdesk using OpenAI chat model with Frappe prompt context.
@@ -53,6 +54,7 @@ try:
             logger.error(f"Error while running helpdesk tool {e}")
             _teardown_session()
             return {"error": f"Failed to get response: {e}"}
+
 except Exception as e:
     logger.error(f"Error while running helpdesk tool: {e}")
     _teardown_session()

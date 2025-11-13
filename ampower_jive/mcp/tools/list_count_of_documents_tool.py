@@ -8,6 +8,7 @@ from ampower_jive.mcp.config.setup import logger
 from ..utils.core_utils import _open_fresh_session, _teardown_session
 
 try:
+
     def run_multi_document_query_count_only(filters):
         """
         Perform a query on multiple doctypes and their child tables with filters,
@@ -27,8 +28,11 @@ try:
 
         if not parent_doctype:
             _teardown_session()
-            return {"error": True, "message": "Parent doctype not specified", "count": 0}
-
+            return {
+                "error": True,
+                "message": "Parent doctype not specified",
+                "count": 0,
+            }
 
         try:
             # Step 1: Query each child table filters to get parents satisfying child filters
@@ -73,7 +77,9 @@ try:
                 # Add parent name filter to parent_filters to restrict parents from children
                 parent_filters["name"] = ["in", list(allowed_parents)]
 
-            frappe.log_error("Before Parent Results", f"{parent_doctype}, {parent_filters}")
+            frappe.log_error(
+                "Before Parent Results", f"{parent_doctype}, {parent_filters}"
+            )
 
             # Step 3: Query parent doctype count with combined parent filters
             # Use frappe.get_list instead of frappe.get_all to enforce permissions
@@ -105,6 +111,7 @@ try:
             frappe.log_error("Multi Document Query Count Error", str(e))
             _teardown_session()
             return {"error": True, "message": f"Unexpected error: {str(e)}", "count": 0}
+
 except Exception as e:
     logger.error(f"Error in list_count_of_documents_tool: {e}")
     _teardown_session()

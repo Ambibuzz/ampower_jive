@@ -6,9 +6,8 @@ import json
 import frappe
 import logging
 import requests
-from typing import Optional, Dict
+from typing import Dict
 from datetime import datetime, date
-from frappe.sessions import Session
 from fastmcp.server.dependencies import get_context
 
 logging.basicConfig(level=logging.INFO)
@@ -82,11 +81,12 @@ def make_local_mcp_request(method, params={}, request_id="frappe-mcp-client"):
 
 
 def ensure_frappe_init():
-    pass
     """Ensure Frappe is initialized"""
     try:
         if not hasattr(frappe, "db") or not frappe.db:
-            frappe.init()
+            site_name = os.environ.get("FRAPPE_SITE")
+            frappe.init(site=site_name)
+            frappe.connect()
         if not hasattr(frappe, "local") or not frappe.local.db:
             frappe.connect()
         logger.info("Frappe initialized successfully")
@@ -122,8 +122,9 @@ def _open_fresh_session():
     frappe.connect()
     update_current_session()
 
+
 def update_current_session():
-     # Get SID and user from FastMCP context and store in variables
+    # Get SID and user from FastMCP context and store in variables
     try:
         ctx = get_context()
         frappe_sid = ctx.get_state("frappe_sid")
