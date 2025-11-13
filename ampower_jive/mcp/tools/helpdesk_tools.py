@@ -3,9 +3,8 @@
 
 import json
 import frappe
-from ampower_jive.mcp.config.setup import logger
 from ..config.open_ai_client import OpenAIConfig
-from ampower_jive.mcp.utils.core_utils import ensure_frappe_init, _teardown_session
+from ampower_jive.mcp.utils.core_utils import ensure_frappe_init, teardown_session, logger
 
 try:
 
@@ -24,7 +23,7 @@ try:
         try:
             ensure_frappe_init()
         except Exception as e:
-            _teardown_session()
+            teardown_session()
             return {"error": f"Frappe initialization failed: {e}"}
 
         # Get prompt from DB, else fallback
@@ -46,15 +45,15 @@ try:
             )
 
             reply = response.choices[0].message.content.strip()
-            _teardown_session()
+            teardown_session()
             logger.info(f"Helpdesk Tool Completed, Response : {reply}")
             return {"reply": reply}
 
         except Exception as e:
             logger.error(f"Error while running helpdesk tool {e}")
-            _teardown_session()
+            teardown_session()
             return {"error": f"Failed to get response: {e}"}
 
 except Exception as e:
     logger.error(f"Error while running helpdesk tool: {e}")
-    _teardown_session()
+    teardown_session()

@@ -1,18 +1,14 @@
 # Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
 # For license information, please see license.txt
 
-import time
-import os, frappe, logging
-from ..utils.core_utils import _teardown_session
+
+import os
+from ..utils.core_utils import teardown_session, logger
 from ampower_jive.mcp.config.middleware import FrappeSIDAuthMiddleware
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-try:
-
-    def start_mcp_server():
+def start_mcp_server():
+    try:
         site_name = os.environ.get("FRAPPE_SITE", "your-site-name")
         from ampower_jive.mcp.config.clients import mcp
         from ampower_jive.mcp.registry import tools_registry
@@ -26,10 +22,9 @@ try:
             stateless_http=True,
             log_level="info",
         )
-
-except Exception as e:
-    _teardown_session()
-    logger.error(f"Failed to start MCP server: {e}")
+    except Exception as e:
+        teardown_session()
+        logger.error(f"Failed to start MCP server: {e}")
 
 if __name__ == "__main__":
     start_mcp_server()

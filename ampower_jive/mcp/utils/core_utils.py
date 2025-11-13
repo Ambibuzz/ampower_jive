@@ -4,14 +4,13 @@
 import os
 import json
 import frappe
-import logging
 import requests
 from typing import Dict
 from datetime import datetime, date
 from fastmcp.server.dependencies import get_context
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+frappe.utils.logger.set_log_level("INFO")
+logger = frappe.logger("frappe-mcp", allow_site=True, file_count=2)
 
 
 MCP_HOST = frappe.conf.get("mcp_server_host", "localhost")
@@ -94,17 +93,17 @@ def ensure_frappe_init():
         logger.error(f"Frappe init error: {e}")
 
 
-def _convert_dates_to_strings(data):
+def convert_dates_to_strings(data):
     if isinstance(data, list):
-        return [_convert_dates_to_strings(item) for item in data]
+        return [convert_dates_to_strings(item) for item in data]
     elif isinstance(data, dict):
-        return {k: _convert_dates_to_strings(v) for k, v in data.items()}
+        return {k: convert_dates_to_strings(v) for k, v in data.items()}
     elif isinstance(data, (datetime, date)):
         return data.isoformat()
     return data
 
 
-def _open_fresh_session():
+def open_fresh_session():
     """
     Open a fresh DB session that sees latest committed rows.
     """
@@ -139,14 +138,14 @@ def update_current_session():
         )
 
 
-def _teardown_session():
+def teardown_session():
     try:
         if getattr(frappe, "db", None):
             # Ensure nothing is left pending and release connection back to pool
             frappe.db.close()
             frappe.destroy()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"Error during teardown_session {e}")
 
 
 def validate_session(sid: str) -> Dict[str, any]:
