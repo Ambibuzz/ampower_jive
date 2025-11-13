@@ -9,7 +9,7 @@ readme = "README.md"
 dynamic = ["version"]
 dependencies = [
     "openai~=1.77.0",
-    "fastmcp==2.13.0.2",
+    "fastmcp==2.9.2",
 ]
 
 [build-system]

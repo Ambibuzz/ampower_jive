@@ -4,7 +4,7 @@
 import json
 import frappe
 from ..config.open_ai_client import OpenAIConfig
-from ampower_jive.mcp.utils.core_utils import ensure_frappe_init, logger
+from ampower_jive.mcp.utils.core_utils import open_fresh_session, logger
 
 
 def run_helpdesk(user_prompt: str) -> str:
@@ -20,7 +20,7 @@ def run_helpdesk(user_prompt: str) -> str:
     logger.info("Helpdesk Tool Initiated...")
 
     try:
-        ensure_frappe_init()
+        open_fresh_session()
     except Exception as e:
         return {"error": f"Frappe initialization failed: {e}"}
 

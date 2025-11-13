@@ -19,7 +19,6 @@ def start_mcp_server():
             transport="streamable-http",
             host=os.environ.get("MCP_HOST"),
             port=int(os.environ.get("MCP_PORT")),
-            stateless_http=True,
             log_level="info",
         )
     except Exception as e:

@@ -126,8 +126,8 @@ def update_current_session():
     # Get SID and user from FastMCP context and store in variables
     try:
         ctx = get_context()
-        frappe_sid = ctx.get_state("frappe_sid")
-        frappe_user = ctx.get_state("frappe_user")
+        frappe_sid = frappe.local.mcp_sid
+        frappe_user = frappe.local.mcp_user
 
         # Bind the session if SID and user are available
         if frappe_sid and frappe_user:
