@@ -7,7 +7,6 @@ from frappe import _
 from ..utils.core_utils import (
     convert_dates_to_strings,
     open_fresh_session,
-    teardown_session,
     logger
 )
 
@@ -32,7 +31,6 @@ def run_multi_doctype_query(filters):
     order_by = filters.get("order_by", "modified desc")
 
     if not parent_doctype:
-        teardown_session()
         return {"error": True, "message": "Parent doctype not specified", "data": []}
 
     open_fresh_session()
@@ -61,14 +59,12 @@ def run_multi_doctype_query(filters):
                         }
                     ]
             except frappe.DoesNotExistError:
-                teardown_session()
                 return {
                     "error": True,
                     "message": f"Document {document_name} does not exist",
                     "data": [],
                 }
             except frappe.PermissionError:
-                teardown_session()
                 return {
                     "error": True,
                     "message": "Permission Error: You do not have permission to access this document",
@@ -90,10 +86,9 @@ def run_multi_doctype_query(filters):
                     fields=parent_fields,
                     limit_page_length=limit,
                     order_by=order_by,
-                    ignore_permissions=False,  # Explicitly enforce permissions
+                    ignore_permissions=False,
                 )
             except frappe.PermissionError:
-                teardown_session()
                 return {
                     "error": True,
                     "message": f"Permission Error: You do not have permission to read {parent_doctype}",
@@ -101,7 +96,6 @@ def run_multi_doctype_query(filters):
                 }
 
         if not parent_results:
-            teardown_session()
             return {
                 "error": False,
                 "message": "No documents found matching the criteria",
@@ -139,11 +133,10 @@ def run_multi_doctype_query(filters):
                     fields=child_fields,
                     order_by="idx asc",
                     limit_page_length=0,
-                    parent_doctype=parent_doctype,  # Provide parent context for permission checks
-                    ignore_permissions=False,  # Explicitly enforce permissions
+                    parent_doctype=parent_doctype,
+                    ignore_permissions=False,
                 )
             except frappe.PermissionError:
-                teardown_session()
                 return {
                     "error": True,
                     "message": f"Permission Error: You do not have permission to read child table {child_doctype}",
@@ -172,12 +165,7 @@ def run_multi_doctype_query(filters):
         frappe.log_error(
             "Query Results Count", f"{parent_doctype}: {len(result)} documents"
         )
-        teardown_session()
         return {"error": False, "message": "Success", "data": result}
     except Exception as e:
         frappe.log_error("Multi Doctype Query Error", str(e))
-        teardown_session()
         return {"error": True, "message": f"Unexpected error: {str(e)}", "data": []}
-    finally:
-        # Critical: release the snapshot so the next call sees new commits
-        teardown_session()

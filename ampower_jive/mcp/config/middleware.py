@@ -55,8 +55,10 @@ class FrappeSIDAuthMiddleware(Middleware):
                 context.fastmcp_context.set_state("frappe_user", user)
 
             # Continue to the tool call
+            result = await call_next(context)
             teardown_session()
-            return await call_next(context)
+            logger.info("FrappeSIDAuthMiddleware completed successfully")
+            return result
 
         except Exception:
             teardown_session()

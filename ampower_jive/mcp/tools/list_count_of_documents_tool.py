@@ -4,7 +4,7 @@
 import json
 import frappe
 from frappe import _
-from ..utils.core_utils import open_fresh_session, teardown_session, logger
+from ..utils.core_utils import open_fresh_session, logger
 
 
 def run_multi_document_query_count_only(filters):
@@ -25,7 +25,6 @@ def run_multi_document_query_count_only(filters):
     parent_fields = filters.get("fields", ["name"])
 
     if not parent_doctype:
-        teardown_session()
         return {
             "error": True,
             "message": "Parent doctype not specified",
@@ -54,7 +53,6 @@ def run_multi_document_query_count_only(filters):
                 parents_from_child = {d.parent for d in child_results}
                 parent_names_sets.append(parents_from_child)
             except frappe.PermissionError:
-                teardown_session()
                 return {
                     "error": True,
                     "message": f"Permission Error: You do not have permission to read child table {child_doctype}",
@@ -65,7 +63,6 @@ def run_multi_document_query_count_only(filters):
         if parent_names_sets:
             allowed_parents = set.intersection(*parent_names_sets)
             if not allowed_parents:
-                teardown_session()
                 return {
                     "error": False,
                     "message": "No matching documents found",
@@ -74,8 +71,6 @@ def run_multi_document_query_count_only(filters):
 
             # Add parent name filter to parent_filters to restrict parents from children
             parent_filters["name"] = ["in", list(allowed_parents)]
-
-        frappe.log_error("Before Parent Results", f"{parent_doctype}, {parent_filters}")
 
         # Step 3: Query parent doctype count with combined parent filters
         # Use frappe.get_list instead of frappe.get_all to enforce permissions
@@ -87,7 +82,6 @@ def run_multi_document_query_count_only(filters):
                 ignore_permissions=False,  # Explicitly enforce permissions
             )
         except frappe.PermissionError:
-            teardown_session()
             return {
                 "error": True,
                 "message": f"Permission Error: You do not have permission to read {parent_doctype}",
@@ -100,10 +94,8 @@ def run_multi_document_query_count_only(filters):
         count = len(parent_results)
         logger.info("Count of Parent Results", f"{count}")
         frappe.log_error("Count of Parent Results", f"{count}")
-        teardown_session()
         return {"error": False, "message": "Success", "count": count}
 
     except Exception as e:
         frappe.log_error("Multi Document Query Count Error", str(e))
-        teardown_session()
         return {"error": True, "message": f"Unexpected error: {str(e)}", "count": 0}
