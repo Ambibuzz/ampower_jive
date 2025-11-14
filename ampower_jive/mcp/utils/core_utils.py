@@ -1,15 +1,16 @@
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
 import os
 import json
 import frappe
-import logging
 import requests
-from typing import Optional, Dict
+from typing import Dict
 from datetime import datetime, date
-from frappe.sessions import Session
 from fastmcp.server.dependencies import get_context
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+frappe.utils.logger.set_log_level("INFO")
+logger = frappe.logger("frappe-mcp", allow_site=True, file_count=2)
 
 
 MCP_HOST = frappe.conf.get("mcp_server_host", "localhost")
@@ -82,7 +83,9 @@ def ensure_frappe_init():
     """Ensure Frappe is initialized"""
     try:
         if not hasattr(frappe, "db") or not frappe.db:
-            frappe.init()
+            site_name = os.environ.get("FRAPPE_SITE")
+            frappe.init(site=site_name)
+            frappe.connect()
         if not hasattr(frappe, "local") or not frappe.local.db:
             frappe.connect()
         logger.info("Frappe initialized successfully")
@@ -90,17 +93,17 @@ def ensure_frappe_init():
         logger.error(f"Frappe init error: {e}")
 
 
-def _convert_dates_to_strings(data):
+def convert_dates_to_strings(data):
     if isinstance(data, list):
-        return [_convert_dates_to_strings(item) for item in data]
+        return [convert_dates_to_strings(item) for item in data]
     elif isinstance(data, dict):
-        return {k: _convert_dates_to_strings(v) for k, v in data.items()}
+        return {k: convert_dates_to_strings(v) for k, v in data.items()}
     elif isinstance(data, (datetime, date)):
         return data.isoformat()
     return data
 
 
-def _open_fresh_session():
+def open_fresh_session():
     """
     Open a fresh DB session that sees latest committed rows.
     """
@@ -118,12 +121,13 @@ def _open_fresh_session():
     frappe.connect()
     update_current_session()
 
+
 def update_current_session():
-     # Get SID and user from FastMCP context and store in variables
+    # Get SID and user from FastMCP context and store in variables
     try:
         ctx = get_context()
-        frappe_sid = ctx.get_state("frappe_sid")
-        frappe_user = ctx.get_state("frappe_user")
+        frappe_sid = frappe.local.mcp_sid
+        frappe_user = frappe.local.mcp_user
 
         # Bind the session if SID and user are available
         if frappe_sid and frappe_user:
@@ -134,14 +138,14 @@ def update_current_session():
         )
 
 
-def _teardown_session():
+def teardown_session():
     try:
         if getattr(frappe, "db", None):
             # Ensure nothing is left pending and release connection back to pool
-            frappe.db.commit()
             frappe.db.close()
-    except Exception:
-        pass
+            frappe.destroy()
+    except Exception as e:
+        logger.error(f"Error during teardown_session {e}")
 
 
 def validate_session(sid: str) -> Dict[str, any]:
@@ -260,21 +264,3 @@ def bind_frappe_session_from_sid(sid: str) -> None:
         raise PermissionError(validation_result["message"])
 
     return validation_result
-
-
-def cleanup_frappe_local():
-    """
-    Clear per-request locals to avoid cross-request contamination in worker reuse.
-    """
-    try:
-        # Reset user to 'Guest' and drop local session safely
-        frappe.set_user("Guest")
-    except Exception:
-        pass
-    finally:
-        if hasattr(frappe, "local"):
-            # Drop session reference
-            try:
-                frappe.local.session = None
-            except Exception:
-                pass

@@ -4,7 +4,7 @@
 import json
 import frappe
 from frappe import _
-from ..utils.core_utils import _open_fresh_session
+from ..utils.core_utils import open_fresh_session, logger
 
 
 def run_multi_document_query_count_only(filters):
@@ -15,6 +15,7 @@ def run_multi_document_query_count_only(filters):
     Returns errors in consistent format instead of throwing.
     """
 
+    open_fresh_session()
     if isinstance(filters, str):
         filters = json.loads(filters)
 
@@ -24,9 +25,11 @@ def run_multi_document_query_count_only(filters):
     parent_fields = filters.get("fields", ["name"])
 
     if not parent_doctype:
-        return {"error": True, "message": "Parent doctype not specified", "count": 0}
-
-    _open_fresh_session()
+        return {
+            "error": True,
+            "message": "Parent doctype not specified",
+            "count": 0,
+        }
 
     try:
         # Step 1: Query each child table filters to get parents satisfying child filters
@@ -69,8 +72,6 @@ def run_multi_document_query_count_only(filters):
             # Add parent name filter to parent_filters to restrict parents from children
             parent_filters["name"] = ["in", list(allowed_parents)]
 
-        frappe.log_error("Before Parent Results", f"{parent_doctype}, {parent_filters}")
-
         # Step 3: Query parent doctype count with combined parent filters
         # Use frappe.get_list instead of frappe.get_all to enforce permissions
         try:
@@ -91,8 +92,8 @@ def run_multi_document_query_count_only(filters):
             parent_results = []
 
         count = len(parent_results)
+        logger.info("Count of Parent Results", f"{count}")
         frappe.log_error("Count of Parent Results", f"{count}")
-
         return {"error": False, "message": "Success", "count": count}
 
     except Exception as e:

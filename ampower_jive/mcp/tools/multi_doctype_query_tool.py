@@ -1,11 +1,13 @@
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
 import json
 import frappe
 from frappe import _
-from datetime import datetime, date
 from ..utils.core_utils import (
-    _convert_dates_to_strings,
-    _open_fresh_session,
-    _teardown_session,
+    convert_dates_to_strings,
+    open_fresh_session,
+    logger
 )
 
 
@@ -31,7 +33,7 @@ def run_multi_doctype_query(filters):
     if not parent_doctype:
         return {"error": True, "message": "Parent doctype not specified", "data": []}
 
-    _open_fresh_session()
+    open_fresh_session()
     frappe.log_error("session User", frappe.session.user)
     try:
         # Always clear per-doctype caches (cheap) to avoid stale meta
@@ -84,7 +86,7 @@ def run_multi_doctype_query(filters):
                     fields=parent_fields,
                     limit_page_length=limit,
                     order_by=order_by,
-                    ignore_permissions=False,  # Explicitly enforce permissions
+                    ignore_permissions=False,
                 )
             except frappe.PermissionError:
                 return {
@@ -131,8 +133,8 @@ def run_multi_doctype_query(filters):
                     fields=child_fields,
                     order_by="idx asc",
                     limit_page_length=0,
-                    parent_doctype=parent_doctype,  # Provide parent context for permission checks
-                    ignore_permissions=False,  # Explicitly enforce permissions
+                    parent_doctype=parent_doctype,
+                    ignore_permissions=False,
                 )
             except frappe.PermissionError:
                 return {
@@ -159,7 +161,7 @@ def run_multi_doctype_query(filters):
                 name = parent_doc.get("name")
                 parent_doc[child_fieldname] = child_by_parent.get(name, [])
 
-        result = _convert_dates_to_strings(parent_results)
+        result = convert_dates_to_strings(parent_results)
         frappe.log_error(
             "Query Results Count", f"{parent_doctype}: {len(result)} documents"
         )
@@ -167,6 +169,3 @@ def run_multi_doctype_query(filters):
     except Exception as e:
         frappe.log_error("Multi Doctype Query Error", str(e))
         return {"error": True, "message": f"Unexpected error: {str(e)}", "data": []}
-    finally:
-        # Critical: release the snapshot so the next call sees new commits
-        _teardown_session()

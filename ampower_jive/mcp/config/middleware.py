@@ -1,15 +1,17 @@
-import json, frappe
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
+import frappe
 from fastmcp.exceptions import ToolError
-from fastmcp.server.middleware import Middleware, MiddlewareContext
+from ..utils.core_utils import teardown_session
 from fastmcp.server.dependencies import get_http_headers
-from ampower_jive.mcp.utils.core_utils import (
-    bind_frappe_session_from_sid,
-    cleanup_frappe_local
-)
+from fastmcp.server.middleware import Middleware, MiddlewareContext
+from ampower_jive.mcp.utils.core_utils import bind_frappe_session_from_sid, logger
 
 
 class FrappeSIDAuthMiddleware(Middleware):
     async def on_call_tool(self, context: MiddlewareContext, call_next):
+        logger.debug("FrappeSIDAuthMiddleware invoked")
         headers = get_http_headers() or {}
         sid = None
 
@@ -20,9 +22,10 @@ class FrappeSIDAuthMiddleware(Middleware):
                 sid = parts[0]
             elif len(parts) == 2 and parts[0].lower() == "bearer":
                 sid = parts[1]
-        frappe.log_error("Middleware Log", f"Headers: {auth_header}, SID: {sid}")
+        logger.info(f"Middleware Log: Headers :- {auth_header}, SID :- {sid}, usesr :- {frappe.session.user}")
 
         if not sid:
+            teardown_session()
             raise ToolError(
                 {
                     "error": "Unauthorized",
@@ -34,7 +37,6 @@ class FrappeSIDAuthMiddleware(Middleware):
         try:
             # Validate and bind frappe session
             validation_result = bind_frappe_session_from_sid(sid)
-
             # Optionally get validated user directly
             # If validate_session is accessible, use it to avoid re-querying later
             try:
@@ -47,14 +49,19 @@ class FrappeSIDAuthMiddleware(Middleware):
                 user = getattr(frappe.session, "user", None)
 
             # Store session info in FastMCP context state for tools
-            context.fastmcp_context.set_state("frappe_sid", sid)
+            frappe.local.mcp_sid = sid
             if user:
-                context.fastmcp_context.set_state("frappe_user", user)
+                frappe.local.mcp_user = user
 
             # Continue to the tool call
-            return await call_next(context)
+            result = await call_next(context)
+            teardown_session()
+            logger.info("FrappeSIDAuthMiddleware completed successfully")
+            return result
 
-        except Exception:
+        except Exception as e:
+            teardown_session()
+            logger.info(f"Middleware error: {e}")
             raise ToolError(
                 {
                     "error": "Unauthorized",
@@ -64,5 +71,4 @@ class FrappeSIDAuthMiddleware(Middleware):
             )
 
         finally:
-            # Clean up frappe locals after each request to prevent leakage
-            cleanup_frappe_local()
+            teardown_session()

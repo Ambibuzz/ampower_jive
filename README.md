@@ -57,14 +57,14 @@ contextual responses using documents, data, and integrated tools with full acces
 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/Ambibuzz/AmPower-Jive.git
+git clone https://github.com/Ambibuzz/ampower_jive.git
 cd ampower_jive
 ```
 
 2. **Install the App**
 
 ```bash
-bench get-app https://github.com/Ambibuzz/AmPower-Jive.git
+bench get-app https://github.com/Ambibuzz/ampower_jive.git
 bench install-app ampower_jive
 bench --site [your.site.name] migrate
 ```

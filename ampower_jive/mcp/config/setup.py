@@ -1,43 +1,29 @@
-import time
-import os, frappe, logging
+# Copyright (c) 2025, Ambibuzz Technologies LLP and contributors
+# For license information, please see license.txt
+
+
+import os
+from ..utils.core_utils import teardown_session, logger
 from ampower_jive.mcp.config.middleware import FrappeSIDAuthMiddleware
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-try:
-
-    def start_mcp_server():
+def start_mcp_server():
+    try:
         site_name = os.environ.get("FRAPPE_SITE", "your-site-name")
         from ampower_jive.mcp.config.clients import mcp
         from ampower_jive.mcp.registry import tools_registry
 
         # Registering middleware globally so it runs for all tool calls
         mcp.add_middleware(FrappeSIDAuthMiddleware())
-        while True:
-            try:
-                frappe.init(site=site_name)
-                frappe.connect()
-                logger.info(f"Frappe initialized for site: {site_name}")
-
-                # Add connection health check
-                frappe.db.sql("SELECT 1")
-                logger.info("Database connection verified")
-
-                break
-            except Exception as e:
-                logger.error(f"Frappe init failed: {e}. Retrying in 5 seconds...")
-                time.sleep(5)
-
         mcp.run(
             transport="streamable-http",
             host=os.environ.get("MCP_HOST"),
-            port=int(os.environ.get("MCP_PORT"))
+            port=int(os.environ.get("MCP_PORT")),
+            log_level="info",
         )
-
-except Exception as e:
-    logger.error(f"Failed to start MCP server: {e}")
+    except Exception as e:
+        teardown_session()
+        logger.error(f"Failed to start MCP server: {e}")
 
 if __name__ == "__main__":
     start_mcp_server()

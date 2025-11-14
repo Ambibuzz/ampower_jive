@@ -1,3 +1,23 @@
+/**
+ * -----------------------------------------------------------------------------
+ * AmPower Jive Chatbot Integration
+ * -----------------------------------------------------------------------------
+ * This script dynamically loads and initializes the n8n Chat UI for the 
+ * AmPower Jive assistant. It fetches the chatbot configuration (webhook URL, 
+ * session ID, instance endpoint, etc.) from the Frappe backend and embeds 
+ * the chat interface into the page.
+ *
+ * The chatbot UI and initialization logic are based on the n8n Chat UI 
+ * open-source library available at:
+ * 👉 https://n8nchatui.com/
+ *
+ * Reference:
+ * The code structure and Chatbot initialization options have been inspired 
+ * and adapted from the official n8n Chat UI documentation and examples.
+ * -----------------------------------------------------------------------------
+ */
+
+
 function initN8nChat() {
   frappe
     .call(
@@ -100,7 +120,7 @@ function initN8nChat() {
               sendButtonBorderRadius: 50
             },
             uploadsConfig: {
-              enabled: true,
+              enabled: false,
               acceptFileTypes: [
                 "png",
                 "jpeg",
@@ -111,33 +131,12 @@ function initN8nChat() {
               maxFiles: 1
             },
             voiceInputConfig: {
-              enabled: true,
+              enabled: false,
               maxRecordingTime: 10,
               recordingNotSupportedMessage: "To record audio, use modern browsers like Chrome or Firefox that support audio recording"
             }
           }
         }
-      });
-
-      const btn = document.body.querySelector("n8nchatui-popup").shadowRoot.querySelector(".n8n-chat-ui-bot-bubble");
-
-      // Listen for click on chat bubble and update footer after 500ms
-      btn && btn.addEventListener('click', () => {
-        setTimeout(() => {
-          const chatContainer = document.body.querySelector("n8nchatui-popup").shadowRoot.querySelector(".n8n-chat-ui-bot-chat-container");
-          const footerSpan = chatContainer.lastChild;
-
-          const newSpan = document.createElement("span");
-          newSpan.setAttribute("class", "w-full text-center px-[10px] pt-[6px] pb-[10px] m-auto text-[13px]");
-          newSpan.setAttribute("style", "color: rgb(48, 50, 53); background-color: rgb(237, 232, 237);");
-          newSpan.innerHTML = 
-            'Powered by Open Source | ' +
-            '<a target="_blank" rel="noopener noreferrer" class="lite-badge" id="lite-badge" href="https://github.com/Ambibuzz/ampower_jive" style="font-weight: bold; color: rgb(48, 50, 53);">' +
-            '<b>AmPower Jive</b>' +
-            '</a>';
-
-          footerSpan.replaceWith(newSpan);
-        }, 100);
       });
     `;
       document.body.appendChild(script);
