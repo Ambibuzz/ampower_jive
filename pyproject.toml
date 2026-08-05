@@ -1,0 +1,30 @@
+[project]
+name = "ampower_jive"
+authors = [
+    { name = "Ambibuzz Technologies LLP", email = "buzz.us@ambibuzz.com" }
+]
+description = "Conversation over AmPower using GenAI"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "openai~=2.20.0",
+    "langchain~=1.2.10",
+    "langchain-core~=1.2.11",
+    "langchain-openai~=1.1.9",
+    "langgraph~=1.0.8",
+    "langgraph-checkpoint~=4.0.0",
+    "langgraph-prebuilt~=1.0.7",
+    "langgraph-sdk~=0.3.5",
+    "langsmith~=0.7.1",
+    "Pillow~=11.3",
+    "python-docx>=1.0.0",
+    "PyPDF2~=3.0"
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.dev-dependencies]
+# package_name = "~=1.1.0"

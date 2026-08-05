@@ -1,0 +1,164 @@
+body.jive-helpdesk-portal-page {
+    overflow: hidden;
+    background: #0a0a0b;
+}
+
+body.jive-helpdesk-portal-page .navbar,
+body.jive-helpdesk-portal-page .web-footer,
+body.jive-helpdesk-portal-page .page-breadcrumbs,
+body.jive-helpdesk-portal-page .page-header-wrapper {
+    display: none !important;
+}
+
+body.jive-helpdesk-portal-page .page-content-wrapper,
+body.jive-helpdesk-portal-page .page_content,
+body.jive-helpdesk-portal-page main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.jive-helpdesk-portal-page .page-content-wrapper,
+body.jive-helpdesk-portal-page .page_content,
+body.jive-helpdesk-portal-page main {
+    min-height: 100vh;
+}
+
+body.jive-helpdesk-portal-page .page_content {
+    display: flex;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-page-shell {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-page-stage {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root {
+    height: 100%;
+    width: 100%;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    height: 100% !important;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-select {
+    display: flex !important;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid rgba(96, 165, 250, 0.5);
+    border-radius: 999px;
+    color: #dbeafe;
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.26), rgba(37, 99, 235, 0.16));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    cursor: help;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-trigger svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-popover {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    z-index: 40;
+    width: max-content;
+    min-width: 220px;
+    max-width: 320px;
+    padding: 12px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.98);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs:hover .jive-mode-docs-popover,
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs:focus-within .jive-mode-docs-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-title {
+    margin-bottom: 8px;
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 220px;
+    overflow: auto;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-list li {
+    padding: 6px 0;
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-mode-docs-list li + li {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-header-btn[title="Settings"] {
+    display: none !important;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-sidebar {
+    width: 275px;
+}
+
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-header-btn[title="Close chat"],
+body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-header-btn[title="Maximize"] {
+    display: none !important;
+}
+
+@media (max-width: 991px) {
+    body.jive-helpdesk-portal-page .jive-helpdesk-chat-root .jive-sidebar {
+        width: 260px;
+    }
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "doctype": "Role",
+    "role_name": "Jive User",
+    "desk_access": 1,
+    "is_custom": 0,
+    "disabled": 0
+  }
+]

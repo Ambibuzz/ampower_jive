@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:user",
+ "creation": "2026-06-15 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "user_mandate",
+  "is_active",
+  "column_break_main",
+  "section_break_wlrm",
+  "customer_link",
+  "column_break_mxlv",
+  "customer_id",
+  "linked_vector_databases_section",
+  "linked_vector_databases",
+  "priority",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "description": "Use this mapping as the user-specific routing rule.",
+   "fieldname": "user_mandate",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "User Mandate"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Optional customer link used when a user-specific mapping is not available.",
+   "fieldname": "customer_link",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer Link",
+   "options": "Customer"
+  },
+  {
+   "description": "Optional customer identifier or external reference.",
+   "fieldname": "customer_id",
+   "fieldtype": "Data",
+   "label": "Customer ID"
+  },
+  {
+   "fieldname": "linked_vector_databases_section",
+   "fieldtype": "Section Break",
+   "label": "Linked Vector Databases"
+  },
+  {
+   "description": "Assign one or more vector databases for this user-specific RAG mapping.",
+   "fieldname": "linked_vector_databases",
+   "fieldtype": "Table",
+   "label": "Linked Vector Databases",
+   "options": "Jive Rag User Vector Database",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "description": "Lower values are resolved first when multiple mappings exist.",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Priority"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "section_break_wlrm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_mxlv",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-07 12:08:02.385725",
+ "modified_by": "Administrator",
+ "module": "Ampower Jive",
+ "name": "Jive Rag User",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "user"
+}

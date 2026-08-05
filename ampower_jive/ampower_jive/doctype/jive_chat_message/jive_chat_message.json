@@ -1,0 +1,144 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-08-11 11:48:00.916024",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "role",
+        "question",
+        "response",
+        "content",
+        "request_payload",
+        "mode",
+        "timestamp",
+        "tool_used",
+        "status",
+        "tokens_in",
+        "tokens_out",
+        "total_tokens",
+        "processing_time_ms",
+        "feedback",
+        "comment",
+        "error_message",
+        "error_traceback"
+    ],
+    "fields": [
+        {
+            "default": "turn",
+            "fieldname": "role",
+            "fieldtype": "Select",
+            "label": "Role",
+            "options": "turn\nuser\nassistant\nsystem"
+        },
+        {
+            "fieldname": "question",
+            "fieldtype": "Small Text",
+            "in_list_view": 1,
+            "label": "Question"
+        },
+        {
+            "fieldname": "response",
+            "fieldtype": "Small Text",
+            "in_list_view": 1,
+            "label": "Response"
+        },
+        {
+            "fieldname": "content",
+            "fieldtype": "Small Text",
+            "hidden": 1,
+            "label": "Legacy Content"
+        },
+        {
+            "fieldname": "request_payload",
+            "fieldtype": "Long Text",
+            "label": "Request Payload"
+        },
+        {
+            "default": "query",
+            "fieldname": "mode",
+            "fieldtype": "Select",
+            "label": "Mode",
+            "options": "query\nhelpdesk\nhd_tickets\nagent\ninsights\nrag"
+        },
+        {
+            "fieldname": "timestamp",
+            "fieldtype": "Datetime",
+            "label": "Timestamp"
+        },
+        {
+            "fieldname": "tool_used",
+            "fieldtype": "Data",
+            "label": "Tool Used"
+        },
+        {
+            "default": "success",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Result Type",
+            "options": "success\nerror\ntimeout"
+        },
+        {
+            "default": "0",
+            "fieldname": "tokens_in",
+            "fieldtype": "Int",
+            "label": "Tokens In (Prompt)"
+        },
+        {
+            "default": "0",
+            "fieldname": "tokens_out",
+            "fieldtype": "Int",
+            "label": "Tokens Out (Completion)"
+        },
+        {
+            "default": "0",
+            "fieldname": "total_tokens",
+            "fieldtype": "Int",
+            "label": "Total Tokens",
+            "read_only": 1
+        },
+        {
+            "default": "0",
+            "fieldname": "processing_time_ms",
+            "fieldtype": "Int",
+            "label": "Processing Time (ms)"
+        },
+        {
+            "fieldname": "feedback",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Feedback",
+            "options": "\nLike\nDislike"
+        },
+        {
+            "fieldname": "comment",
+            "fieldtype": "Text",
+            "label": "Comment"
+        },
+        {
+            "fieldname": "error_message",
+            "fieldtype": "Small Text",
+            "label": "Error Message"
+        },
+        {
+            "fieldname": "error_traceback",
+            "fieldtype": "Code",
+            "label": "Error Traceback",
+            "options": ""
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "istable": 1,
+    "links": [],
+    "modified": "2026-05-20 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Ampower Jive",
+    "name": "Jive Chat Message",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+}

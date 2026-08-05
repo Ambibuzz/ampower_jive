@@ -1,0 +1,175 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="jive-helpdesk-page-shell">
+    <div class="jive-helpdesk-page-stage">
+        <div id="jive-helpdesk-chat-root" class="jive-helpdesk-chat-root" data-portal-access="1"></div>
+    </div>
+</div>
+<script src="{{ bundled_asset('jive_chat.bundle.js') }}"></script>
+<script>
+    window.addEventListener("load", () => {
+        const root = document.getElementById("jive-helpdesk-chat-root");
+        if (!root || !window.JiveChat) {
+            return;
+        }
+
+        class PortalHelpdeskChat extends window.JiveChat {
+            constructor(container) {
+                super(container, { portalAccess: true });
+            }
+
+            getWelcome() {
+                const mode = this.getModeMeta(this.currentMode);
+                if (this.normalizeMode(mode?.agent_key) !== "hd_tickets") {
+                    return super.getWelcome();
+                }
+
+                const showSuggestions = this.config?.show_suggestions !== false;
+
+                return `
+                    <div class="jive-welcome">
+                        <div class="jive-welcome-icon">A</div>
+                        <h1>Which tickets should I check?</h1>
+                        <p>Ask about ticket status, lists, updates, and customer activity</p>
+                        ${showSuggestions ? `
+                        <div class="jive-suggestions">
+                            <button class="jive-suggestion" onclick="jiveChat.useSuggestion('Show my open tickets')">
+                                Show my open tickets
+                            </button>
+                            <button class="jive-suggestion" onclick="jiveChat.useSuggestion('Create a ticket')">
+                                Create a ticket
+                            </button>
+                        </div>
+                        ` : ""}
+                        <div class="jive-welcome-badge">
+                            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            Built by Ambibuzz Technologies
+                        </div>
+                    </div>
+                `;
+            }
+
+            getModeAuxiliaryControls(mode) {
+                if (!mode || this.normalizeMode(mode.agent_key) !== "rag" || this.normalizeMode(this.currentMode) !== "rag") {
+                    return "";
+                }
+
+                const documents = Array.isArray(this.config?.rag_helpdesk_documents)
+                    ? this.config.rag_helpdesk_documents.filter(Boolean)
+                    : [];
+                if (!documents.length) {
+                    return "";
+                }
+
+                return `
+                    <div class="jive-mode-docs" tabindex="0" aria-label="Linked documents">
+                        <button type="button" class="jive-mode-docs-trigger" aria-label="Show linked documents">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="10" x2="12" y2="17"></line>
+                                <circle cx="12" cy="7" r="1.2"></circle>
+                            </svg>
+                        </button>
+                        <div class="jive-mode-docs-popover" role="tooltip">
+                            <div class="jive-mode-docs-title">Linked Documents</div>
+                            <ul class="jive-mode-docs-list">
+                                ${documents.map((documentName) => `<li>${this.esc(documentName)}</li>`).join("")}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getAgentAvailabilityMap() {
+                const availability = super.getAgentAvailabilityMap();
+                if (this.isTruthyFlag(this.config?.enable_rag_helpdesk, false)) {
+                    availability.rag = true;
+                }
+                return availability;
+            }
+
+            getBuiltinModes() {
+                const modes = super.getBuiltinModes();
+                const ragHelpdeskEnabled = this.isTruthyFlag(this.config?.enable_rag_helpdesk, false);
+
+                if (modes.helpdesk) {
+                    modes.helpdesk = {
+                        ...modes.helpdesk,
+                        sort_order: 10,
+                    };
+                }
+
+                if (ragHelpdeskEnabled && modes.rag) {
+                    modes.rag = {
+                        ...modes.rag,
+                        label: "Doc Help",
+                        hint: "Ask questions about your mapped documents",
+                        icon: "▣",
+                        color: "#0ea5e9",
+                        status_message: "Searching your documents...",
+                        supports_context: false,
+                        sort_order: 20,
+                    };
+                }
+
+                return modes;
+            }
+
+            getModeCatalog() {
+                const catalog = [];
+                const helpdesk = this.normalizeModeEntry(this.getBuiltinModes().helpdesk);
+                const hdTickets = this.getConfiguredPortalMode("hd_tickets");
+                const docHelp = this.normalizeModeEntry(this.getBuiltinModes().rag);
+                const helpdeskEnabled = this.isBuiltinModeEnabled("helpdesk");
+
+                if (
+                    helpdesk.agent_key &&
+                    helpdeskEnabled &&
+                    this.isTruthyFlag(helpdesk.visible_in_chat, true) &&
+                    this.isTruthyFlag(helpdesk.enabled, true)
+                ) {
+                    catalog.push(helpdesk);
+                }
+
+                if (
+                    hdTickets &&
+                    helpdeskEnabled &&
+                    this.isTruthyFlag(hdTickets.visible_in_chat, true) &&
+                    this.isTruthyFlag(hdTickets.enabled, true) &&
+                    this.isTruthyFlag(hdTickets.tenant_visible_in_chat, true) &&
+                    this.isTruthyFlag(hdTickets.tenant_enabled, true) &&
+                    this.isTruthyFlag(hdTickets.is_available, true)
+                ) {
+                    catalog.push(hdTickets);
+                }
+
+                if (
+                    this.isTruthyFlag(this.config?.enable_rag_helpdesk, false) &&
+                    docHelp.agent_key === "rag" &&
+                    this.isBuiltinModeEnabled("rag") &&
+                    this.isTruthyFlag(docHelp.visible_in_chat, true) &&
+                    this.isTruthyFlag(docHelp.enabled, true)
+                ) {
+                    catalog.push(docHelp);
+                }
+
+                return catalog.sort((a, b) => (a.sort_order || 100) - (b.sort_order || 100));
+            }
+
+            getConfiguredPortalMode(agentKey) {
+                const coreModes = Array.isArray(this.config?.available_agents) ? this.config.available_agents : [];
+                const match = coreModes.find((mode) => this.normalizeMode(mode?.agent_key) === this.normalizeMode(agentKey));
+                return match ? this.normalizeModeEntry(match) : null;
+            }
+
+            getDefaultMode() {
+                const catalog = this.getModeCatalog();
+                return catalog.length ? catalog[0].agent_key : "helpdesk";
+            }
+        }
+
+        window.jiveChat = new PortalHelpdeskChat(root);
+    });
+</script>
+{% endblock %}

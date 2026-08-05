@@ -1,0 +1,16 @@
+.DS_Store
+*.pyc
+*.egg-info
+*.swp
+tags
+yarn.lock
+ampower_jive/docs/current
+node_modules/
+*node_modules
+*dist
+*cache
+*__pycache__
+n8n-config.json
+ampower_jive/mcp/config/frappe-mcp.conf
+ampower_jive/mcp/config/service_account.json
+ampower_jive/public/node_modules
