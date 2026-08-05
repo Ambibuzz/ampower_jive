@@ -1,0 +1,193 @@
+{
+    "actions": [],
+    "autoname": "hash",
+    "creation": "2026-05-08 00:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "site_name",
+        "state",
+        "user",
+        "session_id",
+        "timestamp",
+        "agent_type",
+        "feature_type",
+        "model",
+        "tokens_in",
+        "tokens_out",
+        "total_tokens",
+        "column_break_1",
+        "estimated_cost",
+        "currency",
+        "processing_time_ms",
+        "request_section",
+        "request_id",
+        "success",
+        "error_message",
+        "column_break_2",
+        "is_aggregated"
+    ],
+    "fields": [
+        {
+            "fieldname": "site_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Site Name",
+            "reqd": 1
+        },
+        {
+            "fieldname": "state",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "State",
+            "options": "With Jive Core\nWithout Jive Core",
+            "reqd": 1
+        },
+        {
+            "fieldname": "user",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "User"
+        },
+        {
+            "fieldname": "session_id",
+            "fieldtype": "Data",
+            "label": "Session ID"
+        },
+        {
+            "fieldname": "timestamp",
+            "fieldtype": "Datetime",
+            "in_list_view": 1,
+            "label": "Timestamp",
+            "reqd": 1
+        },
+        {
+            "fieldname": "agent_type",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Agent Type",
+            "options": "data_query\nhelpdesk\nhd_tickets\nagent_mode\ninsights\nrag\nother",
+            "reqd": 1
+        },
+        {
+            "fieldname": "feature_type",
+            "fieldtype": "Select",
+            "in_standard_filter": 1,
+            "label": "Feature Type",
+            "options": "chat\nrag\nsummarization\ncode_generation\ndocument_operation\nanalytics\nother"
+        },
+        {
+            "fieldname": "model",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Model"
+        },
+        {
+            "default": "0",
+            "fieldname": "tokens_in",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Tokens In (Prompt)"
+        },
+        {
+            "default": "0",
+            "fieldname": "tokens_out",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Tokens Out (Completion)"
+        },
+        {
+            "default": "0",
+            "fieldname": "total_tokens",
+            "fieldtype": "Int",
+            "label": "Total Tokens",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "estimated_cost",
+            "fieldtype": "Currency",
+            "label": "Estimated Cost",
+            "precision": "6"
+        },
+        {
+            "default": "USD",
+            "fieldname": "currency",
+            "fieldtype": "Link",
+            "label": "Currency",
+            "options": "Currency"
+        },
+        {
+            "default": "0",
+            "fieldname": "processing_time_ms",
+            "fieldtype": "Int",
+            "label": "Processing Time (ms)"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "request_section",
+            "fieldtype": "Section Break",
+            "label": "Request Details"
+        },
+        {
+            "fieldname": "request_id",
+            "fieldtype": "Data",
+            "label": "Request ID"
+        },
+        {
+            "default": "1",
+            "fieldname": "success",
+            "fieldtype": "Check",
+            "label": "Success"
+        },
+        {
+            "fieldname": "error_message",
+            "fieldtype": "Small Text",
+            "label": "Error Message"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "is_aggregated",
+            "fieldtype": "Check",
+            "label": "Is Aggregated"
+        }
+    ],
+    "index_web_pages_for_search": 0,
+    "links": [],
+    "modified": "2026-05-08 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Ampower Jive",
+    "name": "Ampower Jive Token Logs",
+    "naming_rule": "Random",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "read": 1,
+            "report": 1,
+            "role": "System Manager"
+        },
+        {
+            "read": 1,
+            "report": 1,
+            "role": "Jive User",
+            "if_owner": 1
+        }
+    ],
+    "sort_field": "timestamp",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 0
+}

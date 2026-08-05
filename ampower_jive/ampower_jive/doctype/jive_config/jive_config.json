@@ -1,0 +1,889 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-10 00:07:49.416225",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_tab",
+  "active_jive",
+  "enable_voice_input",
+  "enable_file_upload",
+  "enable_gif_generation",
+  "column_break_general",
+  "max_history_messages",
+  "conversation_retention_days",
+  "manage_agents_section",
+  "enable_query_agent",
+  "enable_helpdesk_agent",
+  "column_break_manage_agents",
+  "enable_agent_mode",
+  "enable_insights_agent",
+  "enable_rag_agent",
+  "jive_core_section",
+  "use_jive_core",
+  "jive_core_url",
+  "column_break_jive_core",
+  "jive_core_api_key",
+  "jive_core_connection_status",
+  "token_usage_section",
+  "daily_token_limit",
+  "daily_tokens_used",
+  "column_break_usage_1",
+  "monthly_token_limit",
+  "monthly_tokens_used",
+  "token_usage_last_updated",
+  "local_token_usage_section",
+  "local_daily_token_usage",
+  "column_break_local_usage_1",
+  "local_monthly_token_usage",
+  "local_monthly_token_limit",
+  "data_sources_section",
+  "included_doctypes",
+  "helpdesk_chat_tab",
+  "enable_hd_tickets",
+  "enable_rag_helpdesk",
+  "rag_tab",
+  "rag_pipeline_mode",
+  "rag_default_vector_database",
+  "user_specific_rag_section",
+  "user_specific_rag_embedding_model",
+  "user_specific_rag_chunk_size",
+  "user_specific_rag_chunk_overlap",
+  "user_specific_rag_column_break",
+  "user_specific_rag_top_k",
+  "user_specific_rag_index_backend",
+  "user_specific_rag_answer_model",
+  "user_specific_rag_temperature",
+  "user_specific_rag_max_tokens",
+  "user_specific_rag_retrieval_section",
+  "user_specific_rag_enable_incremental_indexing",
+  "user_specific_rag_enable_embedding_cache",
+  "user_specific_rag_enable_hybrid_search",
+  "user_specific_rag_enable_metadata_filtering",
+  "user_specific_rag_enable_streaming",
+  "user_specific_rag_hybrid_weight",
+  "user_specific_rag_keyword_weight",
+  "rag_documents_section",
+  "rag_documents",
+  "rag_settings_section",
+  "rag_embedding_model",
+  "rag_chunk_size",
+  "column_break_rag_settings",
+  "rag_chunk_overlap",
+  "rag_top_k",
+  "rag_artifacts_section",
+  "rag_processing_status",
+  "rag_last_processed",
+  "rag_manifest_json_path",
+  "rag_index_path",
+  "rag_chunk_store_path",
+  "ai_configuration_tab",
+  "chat_model_section",
+  "chat_model",
+  "chat_temperature",
+  "column_break_chat",
+  "chat_max_tokens",
+  "max_context_tokens",
+  "data_query_system_prompt_section",
+  "data_query_system_prompt",
+  "context_aware_system_prompt_section",
+  "context_aware_system_prompt",
+  "helpdesk_model_section",
+  "help_desk_model",
+  "helpdesk_temperature",
+  "column_break_helpdesk",
+  "helpdesk_max_tokens",
+  "helpdesk_system_prompt_section",
+  "helpdesk_prompt",
+  "hd_tickets_model_section",
+  "hd_tickets_model",
+  "hd_tickets_system_prompt_section",
+  "hd_tickets_system_prompt",
+  "agent_model_section",
+  "agent_model",
+  "agent_temperature",
+  "column_break_agent",
+  "agent_require_approval",
+  "agent_system_prompt_section",
+  "agent_system_prompt",
+  "insights_model_section",
+  "insights_model",
+  "column_break_vrvh",
+  "insights_temperature",
+  "insights_system_prompt_section",
+  "insights_system_prompt",
+  "api_keys_tab",
+  "select_inference_engines",
+  "open_ai_key",
+  "ui_settings_tab",
+  "welcome_title",
+  "welcome_message",
+  "column_break_ui",
+  "primary_color",
+  "show_suggestions"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_tab",
+   "fieldtype": "Tab Break",
+   "label": "General"
+  },
+  {
+   "default": "0",
+   "description": "Enable or disable AmPower Jive functionality globally. If disabled, the Jive chat button will not appear for anyone.",
+   "fieldname": "active_jive",
+   "fieldtype": "Check",
+   "label": "Ampower Jive Enabled ?"
+  },
+  {
+   "default": "1",
+   "description": "Allow users to use voice input",
+   "fieldname": "enable_voice_input",
+   "fieldtype": "Check",
+   "label": "Enable Voice Input"
+  },
+  {
+   "default": "1",
+   "description": "Allow file uploads in Helpdesk mode",
+   "fieldname": "enable_file_upload",
+   "fieldtype": "Check",
+   "label": "Enable File Upload"
+  },
+  {
+   "default": "1",
+   "description": "Generate animated GIF summaries for helpdesk responses",
+   "fieldname": "enable_gif_generation",
+   "fieldtype": "Check",
+   "label": "Enable GIF Generation"
+  },
+  {
+   "fieldname": "column_break_general",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "10",
+   "description": "Number of messages to include as context",
+   "fieldname": "max_history_messages",
+   "fieldtype": "Int",
+   "label": "Max History Messages"
+  },
+  {
+   "default": "30",
+   "description": "Days to keep conversation history (0 = forever)",
+   "fieldname": "conversation_retention_days",
+   "fieldtype": "Int",
+   "label": "Conversation Retention Days"
+  },
+  {
+   "fieldname": "manage_agents_section",
+   "fieldtype": "Section Break",
+   "label": "Manage Agents"
+  },
+  {
+   "default": "1",
+   "description": "Show the Data Query agent in the chat mode dropdown.",
+   "fieldname": "enable_query_agent",
+   "fieldtype": "Check",
+   "label": "Enable Data Query"
+  },
+  {
+   "default": "1",
+   "description": "Show the Helpdesk agent in the chat mode dropdown.",
+   "fieldname": "enable_helpdesk_agent",
+   "fieldtype": "Check",
+   "label": "Enable Helpdesk"
+  },
+  {
+   "fieldname": "column_break_manage_agents",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Show the Agent mode in the chat mode dropdown.",
+   "fieldname": "enable_agent_mode",
+   "fieldtype": "Check",
+   "label": "Enable Agent"
+  },
+  {
+   "default": "1",
+   "description": "Show the Insights agent in the chat mode dropdown.",
+   "fieldname": "enable_insights_agent",
+   "fieldtype": "Check",
+   "label": "Enable Insights"
+  },
+  {
+   "default": "1",
+   "description": "Show the RAG agent in the chat mode dropdown.",
+   "fieldname": "enable_rag_agent",
+   "fieldtype": "Check",
+   "label": "Enable RAG"
+  },
+  {
+   "fieldname": "helpdesk_chat_tab",
+   "fieldtype": "Tab Break",
+   "label": "Helpdesk Chat"
+  },
+  {
+   "default": "1",
+   "description": "Show the HD Tickets mode in Jive chat and on the helpdesk portal chat.",
+   "fieldname": "enable_hd_tickets",
+   "fieldtype": "Check",
+   "label": "Enable HD Tickets"
+  },
+  {
+   "default": "0",
+   "description": "Show the Doc Help option on the website helpdesk page for website users.",
+   "fieldname": "enable_rag_helpdesk",
+   "fieldtype": "Check",
+   "label": "Enable RAG Helpdesk"
+  },
+  {
+   "fieldname": "data_sources_section",
+   "fieldtype": "Section Break",
+   "label": "Data Sources"
+  },
+  {
+   "description": "Select DocTypes that users can query. Only these doctypes will be accessible in Data Query and Agent modes.",
+   "fieldname": "included_doctypes",
+   "fieldtype": "Table",
+   "label": "Included DocTypes",
+   "options": "Jive Config Doctype"
+  },
+  {
+   "fieldname": "rag_tab",
+   "fieldtype": "Tab Break",
+   "label": "RAG"
+  },
+  {
+   "default": "Legacy Site RAG",
+   "description": "Choose whether chat should use the existing tenant RAG pipeline or the user-specific vector database pipeline.",
+   "fieldname": "rag_pipeline_mode",
+   "fieldtype": "Select",
+   "label": "RAG Pipeline Mode",
+   "options": "Legacy Site RAG\nUser Specific RAG"
+  },
+  {
+   "description": "Optional fallback vector database for user-specific routing.",
+   "fieldname": "rag_default_vector_database",
+   "fieldtype": "Link",
+   "label": "Default Vector Database",
+   "options": "Jive Vector Data Base"
+  },
+  {
+   "fieldname": "user_specific_rag_section",
+   "fieldtype": "Section Break",
+   "label": "User Specific RAG Setup"
+  },
+  {
+   "default": "text-embedding-3-small",
+   "description": "Common embedding model used for all user-specific vector databases.",
+   "fieldname": "user_specific_rag_embedding_model",
+   "fieldtype": "Data",
+   "label": "Embedding Model"
+  },
+  {
+   "default": "1200",
+   "description": "Common chunk size used for all user-specific vector databases.",
+   "fieldname": "user_specific_rag_chunk_size",
+   "fieldtype": "Int",
+   "label": "Chunk Size"
+  },
+  {
+   "default": "200",
+   "description": "Common chunk overlap used for all user-specific vector databases.",
+   "fieldname": "user_specific_rag_chunk_overlap",
+   "fieldtype": "Int",
+   "label": "Chunk Overlap"
+  },
+  {
+   "fieldname": "user_specific_rag_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "5",
+   "description": "Common retrieval limit used for all user-specific vector databases.",
+   "fieldname": "user_specific_rag_top_k",
+   "fieldtype": "Int",
+   "label": "Top K"
+  },
+  {
+   "default": "auto",
+   "fieldname": "user_specific_rag_index_backend",
+   "fieldtype": "Select",
+   "label": "Index Backend",
+   "options": "auto\ndense\nfaiss"
+  },
+  {
+   "default": "gpt-4o-mini",
+   "fieldname": "user_specific_rag_answer_model",
+   "fieldtype": "Select",
+   "label": "Answer Model",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "default": "0.3",
+   "fieldname": "user_specific_rag_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "default": "4096",
+   "fieldname": "user_specific_rag_max_tokens",
+   "fieldtype": "Int",
+   "label": "Max Tokens"
+  },
+  {
+   "fieldname": "user_specific_rag_retrieval_section",
+   "fieldtype": "Section Break",
+   "label": "User Specific Retrieval Controls"
+  },
+  {
+   "default": "1",
+   "fieldname": "user_specific_rag_enable_incremental_indexing",
+   "fieldtype": "Check",
+   "label": "Enable Incremental Indexing"
+  },
+  {
+   "default": "1",
+   "fieldname": "user_specific_rag_enable_embedding_cache",
+   "fieldtype": "Check",
+   "label": "Enable Embedding Cache"
+  },
+  {
+   "default": "1",
+   "fieldname": "user_specific_rag_enable_hybrid_search",
+   "fieldtype": "Check",
+   "label": "Enable Hybrid Search"
+  },
+  {
+   "default": "1",
+   "fieldname": "user_specific_rag_enable_metadata_filtering",
+   "fieldtype": "Check",
+   "label": "Enable Metadata Filtering"
+  },
+  {
+   "default": "1",
+   "fieldname": "user_specific_rag_enable_streaming",
+   "fieldtype": "Check",
+   "label": "Enable Streaming"
+  },
+  {
+   "default": "0.75",
+   "fieldname": "user_specific_rag_hybrid_weight",
+   "fieldtype": "Float",
+   "label": "Hybrid Weight"
+  },
+  {
+   "default": "0.25",
+   "fieldname": "user_specific_rag_keyword_weight",
+   "fieldtype": "Float",
+   "label": "Keyword Weight"
+  },
+  {
+   "fieldname": "rag_documents_section",
+   "fieldtype": "Section Break",
+   "label": "RAG Documents"
+  },
+  {
+   "description": "Attach the documents that should be indexed for this site's RAG pipeline.",
+   "fieldname": "rag_documents",
+   "fieldtype": "Table",
+   "label": "Documents",
+   "options": "Jive Config RAG Document"
+  },
+  {
+   "fieldname": "rag_settings_section",
+   "fieldtype": "Section Break",
+   "label": "RAG Settings"
+  },
+  {
+   "default": "text-embedding-3-small",
+   "description": "Embedding model used when building the local RAG index.",
+   "fieldname": "rag_embedding_model",
+   "fieldtype": "Data",
+   "label": "Embedding Model"
+  },
+  {
+   "default": "1200",
+   "description": "Approximate chunk size in characters.",
+   "fieldname": "rag_chunk_size",
+   "fieldtype": "Int",
+   "label": "Chunk Size"
+  },
+  {
+   "fieldname": "column_break_rag_settings",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "200",
+   "description": "Character overlap between consecutive chunks.",
+   "fieldname": "rag_chunk_overlap",
+   "fieldtype": "Int",
+   "label": "Chunk Overlap"
+  },
+  {
+   "default": "5",
+   "description": "Number of chunks to retrieve for each user query.",
+   "fieldname": "rag_top_k",
+   "fieldtype": "Int",
+   "label": "Top K"
+  },
+  {
+   "fieldname": "rag_artifacts_section",
+   "fieldtype": "Section Break",
+   "label": "Active Artifacts"
+  },
+  {
+   "default": "Idle",
+   "fieldname": "rag_processing_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Processing Status",
+   "options": "Idle\nQueued\nProcessing\nReady\nFailed"
+  },
+  {
+   "fieldname": "rag_last_processed",
+   "fieldtype": "Datetime",
+   "label": "Last Processed",
+   "read_only": 1
+  },
+  {
+   "description": "File URL of the active manifest stored in Frappe's file system.",
+   "fieldname": "rag_manifest_json_path",
+   "fieldtype": "Data",
+   "label": "Manifest File"
+  },
+  {
+   "description": "File URL of the active index stored in Frappe's file system.",
+   "fieldname": "rag_index_path",
+   "fieldtype": "Data",
+   "label": "Index File"
+  },
+  {
+   "description": "File URL of the active chunk store stored in Frappe's file system.",
+   "fieldname": "rag_chunk_store_path",
+   "fieldtype": "Data",
+   "label": "Chunk Store File"
+  },
+  {
+   "fieldname": "ai_configuration_tab",
+   "fieldtype": "Tab Break",
+   "label": "AI Models"
+  },
+  {
+   "fieldname": "chat_model_section",
+   "fieldtype": "Section Break",
+   "label": "Data Query Model"
+  },
+  {
+   "default": "gpt-4o-mini",
+   "description": "OpenAI model for data queries",
+   "fieldname": "chat_model",
+   "fieldtype": "Select",
+   "label": "Model Name",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "default": "0.3",
+   "description": "Temperature (0-1). Lower = more focused, Higher = more creative",
+   "fieldname": "chat_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "fieldname": "column_break_chat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "4096",
+   "description": "Maximum tokens in response",
+   "fieldname": "chat_max_tokens",
+   "fieldtype": "Int",
+   "label": "Max Tokens"
+  },
+  {
+   "default": "12000",
+   "description": "Maximum prompt budget for context-aware mode. Irrelevant context is trimmed automatically; if the page still exceeds this budget, Jive will ask you to narrow the view.",
+   "fieldname": "max_context_tokens",
+   "fieldtype": "Int",
+   "label": "Max Context Window Tokens"
+  },
+  {
+   "fieldname": "helpdesk_model_section",
+   "fieldtype": "Section Break",
+   "label": "Helpdesk Model"
+  },
+  {
+   "default": "gpt-4o-mini-search-preview",
+   "description": "OpenAI model for helpdesk queries (search-preview has web access)",
+   "fieldname": "help_desk_model",
+   "fieldtype": "Select",
+   "label": "Model Name",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "default": "0.3",
+   "description": "Temperature for helpdesk responses",
+   "fieldname": "helpdesk_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "fieldname": "column_break_helpdesk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "4096",
+   "description": "Maximum tokens for helpdesk response",
+   "fieldname": "helpdesk_max_tokens",
+   "fieldtype": "Int",
+   "label": "Max Tokens"
+  },
+  {
+   "description": "Custom system prompt for Helpdesk mode (optional)",
+   "fieldname": "helpdesk_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "Helpdesk System Prompt"
+  },
+  {
+   "fieldname": "hd_tickets_model_section",
+   "fieldtype": "Section Break",
+   "label": "HD Tickets Model"
+  },
+  {
+   "default": "gpt-4o-mini",
+   "description": "OpenAI model for HD Tickets summaries and follow-up responses.",
+   "fieldname": "hd_tickets_model",
+   "fieldtype": "Select",
+   "label": "Model Name",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "hd_tickets_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "HD Tickets System Prompt"
+  },
+  {
+   "description": "Custom system prompt for HD Tickets mode (optional)",
+   "fieldname": "hd_tickets_system_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "HD Tickets System Prompt"
+  },
+  {
+   "fieldname": "agent_model_section",
+   "fieldtype": "Section Break",
+   "label": "Agent Model"
+  },
+  {
+   "default": "gpt-4o-mini",
+   "description": "OpenAI model for agent operations",
+   "fieldname": "agent_model",
+   "fieldtype": "Select",
+   "label": "Model Name",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "default": "0.2",
+   "description": "Temperature for agent (lower is safer)",
+   "fieldname": "agent_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "fieldname": "column_break_agent",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Require user approval before executing agent actions",
+   "fieldname": "agent_require_approval",
+   "fieldtype": "Check",
+   "label": "Require Approval"
+  },
+  {
+   "fieldname": "insights_model_section",
+   "fieldtype": "Section Break",
+   "label": "Insights Model"
+  },
+  {
+   "default": "gpt-4o-mini",
+   "description": "OpenAI model for creating visualizations in Insights",
+   "fieldname": "insights_model",
+   "fieldtype": "Select",
+   "label": "Model Name",
+   "options": "gpt-4o-mini\ngpt-4o-mini-search-preview\ngpt-5-mini"
+  },
+  {
+   "default": "0.3",
+   "description": "Temperature for Insights agent",
+   "fieldname": "insights_temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "fieldname": "api_keys_tab",
+   "fieldtype": "Tab Break",
+   "label": "API Keys"
+  },
+  {
+   "default": "OpenAI",
+   "fieldname": "select_inference_engines",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Inference Engine",
+   "options": "OpenAI",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:!doc.use_jive_core",
+   "fieldname": "open_ai_key",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "OpenAI API Key",
+   "mandatory_depends_on": "eval:!doc.use_jive_core"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "jive_core_section",
+   "fieldtype": "Section Break",
+   "label": "Jive Core Integration"
+  },
+  {
+   "default": "0",
+   "description": "Enable to fetch API keys, model settings, and prompts from a central Jive Core instance",
+   "fieldname": "use_jive_core",
+   "fieldtype": "Check",
+   "label": "Use Jive Core"
+  },
+  {
+   "depends_on": "use_jive_core",
+   "description": "URL of your Jive Core instance (e.g., https://core.example.com)",
+   "fieldname": "jive_core_url",
+   "fieldtype": "Data",
+   "label": "Jive Core URL",
+   "mandatory_depends_on": "use_jive_core"
+  },
+  {
+   "fieldname": "column_break_jive_core",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "use_jive_core",
+   "description": "API key for authenticating with Jive Core",
+   "fieldname": "jive_core_api_key",
+   "fieldtype": "Password",
+   "label": "Jive Core API Key",
+   "mandatory_depends_on": "use_jive_core"
+  },
+  {
+   "depends_on": "use_jive_core",
+   "fieldname": "jive_core_connection_status",
+   "fieldtype": "Data",
+   "label": "Connection Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ui_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "UI Settings"
+  },
+  {
+   "default": "What would you like to know?",
+   "fieldname": "welcome_title",
+   "fieldtype": "Data",
+   "label": "Welcome Title"
+  },
+  {
+   "default": "Ask questions about your ERPNext data, get help with features, or let me help you manage documents.",
+   "fieldname": "welcome_message",
+   "fieldtype": "Small Text",
+   "label": "Welcome Message"
+  },
+  {
+   "fieldname": "column_break_ui",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "#6366f1",
+   "description": "Primary color for UI elements (hex code)",
+   "fieldname": "primary_color",
+   "fieldtype": "Data",
+   "label": "Primary Color"
+  },
+  {
+   "default": "1",
+   "description": "Show suggestion buttons on welcome screen",
+   "fieldname": "show_suggestions",
+   "fieldtype": "Check",
+   "label": "Show Suggestions"
+  },
+  {
+   "fieldname": "token_usage_section",
+   "fieldtype": "Section Break",
+   "label": "Core Token Usage"
+  },
+  {
+   "fieldname": "daily_token_limit",
+   "fieldtype": "Int",
+   "label": "Daily Token Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "daily_tokens_used",
+   "fieldtype": "Int",
+   "label": "Daily Tokens Used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_usage_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_token_limit",
+   "fieldtype": "Int",
+   "label": "Monthly Token Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monthly_tokens_used",
+   "fieldtype": "Int",
+   "label": "Monthly Tokens Used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "token_usage_last_updated",
+   "fieldtype": "Datetime",
+   "label": "Last Updated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "local_token_usage_section",
+   "fieldtype": "Section Break",
+   "label": "Local Token Usage"
+  },
+  {
+   "fieldname": "local_daily_token_usage",
+   "fieldtype": "Int",
+   "label": "Daily Usage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_local_usage_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "local_monthly_token_usage",
+   "fieldtype": "Int",
+   "label": "Monthly Usage",
+   "read_only": 1
+  },
+  {
+   "default": "500000",
+   "description": "Maximum monthly tokens allowed for the local tenant-side quota.",
+   "fieldname": "local_monthly_token_limit",
+   "fieldtype": "Int",
+   "label": "Monthly Token Limit"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "data_query_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Data Query System Prompt"
+  },
+  {
+   "fieldname": "data_query_system_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "Data Query System Prompt"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "context_aware_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Context Aware System Prompt"
+  },
+  {
+   "description": "Custom system prompt for Context Aware mode (optional)",
+   "fieldname": "context_aware_system_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "Context Aware System Prompt"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "helpdesk_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Helpdesk System Prompt"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "agent_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Agent System Prompt"
+  },
+  {
+   "fieldname": "agent_system_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "Agent System Prompt"
+  },
+  {
+   "fieldname": "column_break_vrvh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "insights_system_prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Insights System Prompt"
+  },
+  {
+   "fieldname": "insights_system_prompt",
+   "fieldtype": "Markdown Editor",
+   "label": "Insights System Prompt"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-06-22 09:55:56.368555",
+ "modified_by": "Administrator",
+ "module": "Ampower Jive",
+ "name": "Jive Config",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Jive User",
+   "select": 1,
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Jive Admin",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "read_only": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

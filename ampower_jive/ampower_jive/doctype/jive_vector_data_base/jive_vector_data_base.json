@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-06-15 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "vdb_key",
+  "status",
+  "customer",
+  "company",
+  "customer_id",
+  "column_break_main",
+  "source_signature",
+  "build_signature",
+  "notes",
+  "rag_documents_section",
+  "rag_documents",
+  "artifact_section",
+  "manifest_file",
+  "index_file",
+  "chunk_store_file",
+  "document_count",
+  "chunk_count",
+  "vector_count",
+  "last_indexed_at",
+  "processing_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "vdb_key",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vector Database Key",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nQueued\nProcessing\nReady\nFailed\nStale"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "description": "Restrict this vector database to users who are permitted to access this company.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Data",
+   "label": "Customer ID"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_signature",
+   "fieldtype": "Data",
+   "label": "Source Signature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "build_signature",
+   "fieldtype": "Data",
+   "label": "Build Signature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "rag_documents_section",
+   "fieldtype": "Section Break",
+   "label": "RAG Documents"
+  },
+  {
+   "fieldname": "rag_documents",
+   "fieldtype": "Table",
+   "label": "Documents",
+   "options": "Jive Vector Data Base Document"
+  },
+  {
+   "fieldname": "artifact_section",
+   "fieldtype": "Section Break",
+   "label": "Active Artifacts"
+  },
+  {
+   "fieldname": "manifest_file",
+   "fieldtype": "Data",
+   "label": "Manifest File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "index_file",
+   "fieldtype": "Data",
+   "label": "Index File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "chunk_store_file",
+   "fieldtype": "Data",
+   "label": "Chunk Store File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "document_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Document Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "chunk_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Chunk Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vector_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Vector Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_indexed_at",
+   "fieldtype": "Datetime",
+   "label": "Last Indexed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "processing_error",
+   "fieldtype": "Small Text",
+   "label": "Processing Error"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-18 11:59:23.596615",
+ "modified_by": "Administrator",
+ "module": "Ampower Jive",
+ "name": "Jive Vector Data Base",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "vdb_key"
+}
